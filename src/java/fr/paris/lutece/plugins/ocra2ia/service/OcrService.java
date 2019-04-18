@@ -33,8 +33,49 @@
  */
 package fr.paris.lutece.plugins.ocra2ia.service;
 
+import javax.annotation.PostConstruct;
+
+import com.jacob.activeX.ActiveXComponent;
+import com.jacob.com.Dispatch;
+
+import fr.paris.lutece.portal.service.util.AppLogService;
+import fr.paris.lutece.portal.service.util.AppPropertiesService;
 
 public class OcrService
 {
+
+    // properties
+    private static final String PROPERTY_FOLDER_DLL_JACOB      = "ocra2ia.jacob.dll";
+    private static final String PROPERTY_A2IA_CLSID            = "ocra2ia.activex.clsid";
+
+    // constants
+    private static final String JACOB_DLL64_FILE               = "jacob-1.19-x64.dll";
+
+    /**
+     * Jacob Object to wrap A2ia component.
+     */
+    private Dispatch            a2iAObj;
+
+    @PostConstruct
+    public void init( )
+    {
+        try
+        {
+            String folder =  AppPropertiesService.getProperty( PROPERTY_FOLDER_DLL_JACOB );
+            // Load Jacob dll
+            System.load( folder+JACOB_DLL64_FILE );
+
+            // Laod A2ia ActiveX component with clsid
+            String clsid = "clsid:{" + AppPropertiesService.getProperty( PROPERTY_A2IA_CLSID ) + "}";
+            ActiveXComponent comp = new ActiveXComponent( clsid );
+            a2iAObj = comp.getObject( );
+
+        } catch ( UnsatisfiedLinkError e )
+        {
+            AppLogService.error( "Native code Jacob library failed to load.\n" + e );
+        }
+
+        AppLogService.info( "init OCR service done." );
+    }
 
 }
