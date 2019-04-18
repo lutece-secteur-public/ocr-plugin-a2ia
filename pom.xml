@@ -53,6 +53,18 @@
 		</dependency>
 	</dependencies>
 
+	<properties>
+      <componentName>ocra2ia</componentName>
+      <jiraProjectName>PLGOCRA2IA</jiraProjectName>
+      <jiraComponentId>15359</jiraComponentId>
+    </properties>
+    <scm>
+        <connection>scm:git:https://github.com/lutece-secteur-public/ocr-plugin-a2ia.git</connection>
+        <developerConnection>scm:git:https://github.com/lutece-secteur-public/ocr-plugin-a2ia.git</developerConnection>
+        <url>https://github.com/lutece-secteur-public/ocr-plugin-a2ia.git</url>
+      <tag>HEAD</tag>
+    </scm>
+
 
 
 </project>
