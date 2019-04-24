@@ -33,16 +33,32 @@
  */
 package fr.paris.lutece.plugins.ocra2ia.service;
 
+import java.util.Locale;
+import java.util.Map;
+
 import javax.annotation.PostConstruct;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.ArrayUtils;
 
 import com.jacob.activeX.ActiveXComponent;
 import com.jacob.com.Dispatch;
 
+import fr.paris.lutece.portal.service.i18n.I18nService;
 import fr.paris.lutece.portal.service.util.AppLogService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
 
+/**
+ *
+ * Ocr Service
+ *
+ */
 public class OcrService
 {
+
+    //i18n message
+    private static final String MESSAGE_PARAMETER_MANDATORY    = "ocra2ia.message.error.parameters.mandatory";
+    private static final String MESSAGE_INIT_ERROR             = "ocra2ia.message.error.init.ocr";
 
     // properties
     private static final String PROPERTY_FOLDER_DLL_JACOB      = "ocra2ia.jacob.dll";
@@ -76,6 +92,36 @@ public class OcrService
         }
 
         AppLogService.info( "init OCR service done." );
+    }
+
+
+    /**
+     * Perform OCR with A2iA.
+     *
+     * @param imageContent
+     *           image to process
+     * @param fileExtension
+     *           image extension
+     * @param documentType
+     *            document type
+     * @return  Map result of OCR
+     * @throws OcrException
+     *
+     */
+    public Map<String, String> proceed( byte[] imageContent, String fileExtension, String documentType ) throws OcrException
+    {
+        if (a2iAObj == null ) {
+            AppLogService.error( "Bad initialisation of OCR Service.");
+            throw new OcrException( MESSAGE_INIT_ERROR );
+        }
+
+        if ( ArrayUtils.isEmpty( imageContent )  || StringUtils.isEmpty( fileExtension ) || StringUtils.isEmpty( documentType ) )
+        {
+            throw new OcrException( I18nService.getLocalizedString( MESSAGE_PARAMETER_MANDATORY , Locale.getDefault( )) ) ;
+
+        }
+
+        return null;
     }
 
 }
