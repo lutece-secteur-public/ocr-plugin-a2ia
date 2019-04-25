@@ -45,6 +45,7 @@ import com.jacob.activeX.ActiveXComponent;
 import com.jacob.com.Dispatch;
 import com.jacob.com.Variant;
 
+import fr.paris.lutece.plugins.ocra2ia.exception.OcrException;
 import fr.paris.lutece.portal.service.i18n.I18nService;
 import fr.paris.lutece.portal.service.util.AppLogService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
@@ -80,8 +81,11 @@ public class OcrService
     /**
      * Jacob Object to wrap A2ia component.
      */
-    private Dispatch            a2iAObj;
+    private Dispatch            _dispatchA2iAObj;
 
+    /**
+     * Load DLL Jacob and _dispatchA2iAObj.
+     */
     @PostConstruct
     public void init( )
     {
@@ -94,7 +98,7 @@ public class OcrService
             // Laod A2ia ActiveX component with clsid
             String clsid = "clsid:{" + AppPropertiesService.getProperty( PROPERTY_A2IA_CLSID ) + "}";
             ActiveXComponent comp = new ActiveXComponent( clsid );
-            a2iAObj = comp.getObject( );
+            _dispatchA2iAObj = comp.getObject( );
 
         } catch ( UnsatisfiedLinkError e )
         {
@@ -107,25 +111,26 @@ public class OcrService
     /**
      * Perform OCR with A2iA.
      *
-     * @param imageContent
+     * @param byteImageContent
      *            image to process
-     * @param fileExtension
+     * @param strFileExtension
      *            image extension
-     * @param documentType
+     * @param strDocumentType
      *            document type : values allowed : Rib, TaxAssessment
      * @return Map result of OCR
      * @throws OcrException
+     *             the OcrException
      *
      */
-    public Map<String, String> proceed( byte[] imageContent, String fileExtension, String documentType ) throws OcrException
+    public Map<String, String> proceed( byte[] byteImageContent, String strFileExtension, String strDocumentType ) throws OcrException
     {
-        if ( a2iAObj == null )
+        if ( _dispatchA2iAObj == null )
         {
             AppLogService.error( "Bad initialisation of OCR Service." );
             throw new OcrException( MESSAGE_INIT_ERROR );
         }
 
-        if ( ArrayUtils.isEmpty( imageContent ) || StringUtils.isEmpty( fileExtension ) || StringUtils.isEmpty( documentType ) )
+        if ( ArrayUtils.isEmpty( byteImageContent ) || StringUtils.isEmpty( strFileExtension ) || StringUtils.isEmpty( strDocumentType ) )
         {
             throw new OcrException( I18nService.getLocalizedString( MESSAGE_PARAMETER_MANDATORY, Locale.getDefault( ) ) );
 
@@ -133,10 +138,10 @@ public class OcrService
 
         try
         {
-            Variant channelId = openChannelA2ia( );
-            Variant requestId = openRequestA2ia( imageContent, fileExtension, documentType, new Long( channelId.toString( ) ) );
+            Variant variantChannelId = openChannelA2ia( );
+            Variant variantRequestId = openRequestA2ia( byteImageContent, strFileExtension, strDocumentType, new Long( variantChannelId.toString( ) ) );
             // run A2IA OCR engine to get result
-            Variant resultId = Dispatch.call( a2iAObj, "ScrGetResult", channelId, requestId, 60000L  );
+            Variant variantResultId = Dispatch.call( _dispatchA2iAObj, "ScrGetResult", variantChannelId, variantRequestId, 60000L );
 
         } catch ( Exception e )
         {
@@ -155,58 +160,82 @@ public class OcrService
     {
 
         // Init COM A2IA COM Object
-        Dispatch.call( a2iAObj, "ScrInit", "" );
+        Dispatch.call( _dispatchA2iAObj, "ScrInit", "" );
 
         // Init Param
-        Variant resChannelParamId = Dispatch.call( a2iAObj, "ScrCreateChannelParam" );
-        Dispatch.call( a2iAObj, SET_PROPERTY_A2IA, new Long( resChannelParamId.toString( ) ), "cpu[1].cpuServer", AppPropertiesService.getProperty( PROPERTY_A2IA_SERVER_HOST ), "" );
-        Dispatch.call( a2iAObj, SET_PROPERTY_A2IA, new Long( resChannelParamId.toString( ) ), "cpu[1].portServer", AppPropertiesService.getProperty( PROPERTY_A2IA_SERVER_PORT ), "" );
-        Dispatch.call( a2iAObj, SET_PROPERTY_A2IA, new Long( resChannelParamId.toString( ) ), "cpu[1].paramdir", AppPropertiesService.getProperty( PROPERTY_A2IA_PARAM_DIR ) );
+        Variant variantResChannelParamId = Dispatch.call( _dispatchA2iAObj, "ScrCreateChannelParam" );
+        Dispatch.call( _dispatchA2iAObj, SET_PROPERTY_A2IA, new Long( variantResChannelParamId.toString( ) ), "cpu[1].cpuServer", AppPropertiesService.getProperty( PROPERTY_A2IA_SERVER_HOST ), "" );
+        Dispatch.call( _dispatchA2iAObj, SET_PROPERTY_A2IA, new Long( variantResChannelParamId.toString( ) ), "cpu[1].portServer", AppPropertiesService.getProperty( PROPERTY_A2IA_SERVER_PORT ), "" );
+        Dispatch.call( _dispatchA2iAObj, SET_PROPERTY_A2IA, new Long( variantResChannelParamId.toString( ) ), "cpu[1].paramdir", AppPropertiesService.getProperty( PROPERTY_A2IA_PARAM_DIR ) );
 
         // Open channel
-        Variant resChannelId = Dispatch.call( a2iAObj, "ScrOpenChannelExt", new Long( resChannelParamId.toString( ) ), 10000L );
+        Variant variantResChannelId = Dispatch.call( _dispatchA2iAObj, "ScrOpenChannelExt", new Long( variantResChannelParamId.toString( ) ), 10000L );
 
-        return resChannelId;
+        return variantResChannelId;
     }
 
-    private Variant openRequestA2ia( byte[] imageContent, String fileExtension, String documentType, Long channelId ) throws OcrException
+    /**
+     * Open a request with A2ia.
+     *
+     * @param byteImageContent
+     *            image to process
+     * @param strFileExtension
+     *            image extension
+     * @param strDocumentType
+     *            document type
+     * @param lChannelId
+     *            id of the channel communication
+     * @return id of the request
+     * @throws OcrException
+     *             the OcrException
+     */
+    private Variant openRequestA2ia( byte[] byteImageContent, String strFileExtension, String strDocumentType, Long lChannelId ) throws OcrException
     {
 
         // Open Tbl doc
-        Variant tblId = Dispatch.call( a2iAObj, "ScrOpenDocumentTable", getTblDocumentPath( documentType ) );
-        Variant defaultDocId = Dispatch.call( a2iAObj, "ScrGetDefaultDocument", new Long( tblId.toString( ) ) );
+        Variant variantTblId = Dispatch.call( _dispatchA2iAObj, "ScrOpenDocumentTable", getTblDocumentPath( strDocumentType ) );
+        Variant variantDefaultDocId = Dispatch.call( _dispatchA2iAObj, "ScrGetDefaultDocument", new Long( variantTblId.toString( ) ) );
 
         // Following Image Parameters required to be set correctly
-        Dispatch.call( a2iAObj, SET_PROPERTY_A2IA, defaultDocId, "image.imageSourceType", "Memory" );
-        Dispatch.call( a2iAObj, SET_PROPERTY_A2IA, defaultDocId, "image.inputFormat", fileExtension ); // format: Tiff, Bmp, or Jpeg
+        Dispatch.call( _dispatchA2iAObj, SET_PROPERTY_A2IA, variantDefaultDocId, "image.imageSourceType", "Memory" );
+        Dispatch.call( _dispatchA2iAObj, SET_PROPERTY_A2IA, variantDefaultDocId, "image.inputFormat", strFileExtension ); // format: Tiff, Bmp, or Jpeg
 
         // Then Set the buffer to the corresponding A2iA imageBuffer
-        Dispatch.call( a2iAObj, "ScrSetBuffer", defaultDocId, "image.imageSourceTypeInfo.CaseMemory.buffer", imageContent ); // from memory
+        Dispatch.call( _dispatchA2iAObj, "ScrSetBuffer", variantDefaultDocId, "image.imageSourceTypeInfo.CaseMemory.buffer", byteImageContent ); // from memory
 
         // Open Request
-        Variant reqId = Dispatch.call( a2iAObj, "ScrOpenRequest", channelId, new Long( defaultDocId.toString( ) ) );
+        Variant variantReqId = Dispatch.call( _dispatchA2iAObj, "ScrOpenRequest", lChannelId, new Long( variantDefaultDocId.toString( ) ) );
 
-        return reqId;
+        return variantReqId;
     }
 
-    private String getTblDocumentPath( String documentType ) throws OcrException
+    /**
+     * Get the tbl document associate to document type.
+     *
+     * @param strDocumentType
+     *            document type
+     * @return path to tbl document
+     * @throws OcrException
+     *             the OcrException
+     */
+    private String getTblDocumentPath( String strDocumentType ) throws OcrException
     {
-        String tblDocumentPath = null;
+        String strTblDocumentPath = null;
 
-        if ( documentType.equalsIgnoreCase( AppPropertiesService.getProperty( PROPERTY_A2IA_DOCUMENT_RIB ) ) )
+        if ( strDocumentType.equalsIgnoreCase( AppPropertiesService.getProperty( PROPERTY_A2IA_DOCUMENT_RIB ) ) )
         {
-            tblDocumentPath = AppPropertiesService.getProperty( PROPERTY_A2IA_TBL_RIB );
-        } else if ( documentType.equalsIgnoreCase( AppPropertiesService.getProperty( PROPERTY_A2IA_DOCUMENT_TAX ) ) )
+            strTblDocumentPath = AppPropertiesService.getProperty( PROPERTY_A2IA_TBL_RIB );
+        } else if ( strDocumentType.equalsIgnoreCase( AppPropertiesService.getProperty( PROPERTY_A2IA_DOCUMENT_TAX ) ) )
         {
-            tblDocumentPath = AppPropertiesService.getProperty( PROPERTY_A2IA_TBL_TAX );
+            strTblDocumentPath = AppPropertiesService.getProperty( PROPERTY_A2IA_TBL_TAX );
         } else
         {
             AppLogService.error( "Bad value for document type" );
-            String[] messageArgs = { documentType };
+            String[] messageArgs = { strDocumentType };
             throw new OcrException( I18nService.getLocalizedString( MESSAGE_DOCUMENT_TYPE_ERROR, messageArgs, Locale.getDefault( ) ) );
         }
 
-        return tblDocumentPath;
+        return strTblDocumentPath;
     }
 
 }

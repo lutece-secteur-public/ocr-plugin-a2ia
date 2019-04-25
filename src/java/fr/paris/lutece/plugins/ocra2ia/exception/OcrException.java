@@ -31,7 +31,7 @@
  *
  * License 1.0
  */
-package fr.paris.lutece.plugins.ocra2ia.service;
+package fr.paris.lutece.plugins.ocra2ia.exception;
 
 /**
  *
@@ -46,10 +46,15 @@ public class OcrException extends Exception
      */
     private static final long serialVersionUID = 8496524791310074301L;
 
-    public OcrException( String message )
+    /**
+     * Constructor
+     *
+     * @param strMessage
+     *            The error message
+     */
+    public OcrException( String strMessage )
     {
-        super( message );
+        super( strMessage );
     }
-
 
 }
