@@ -82,6 +82,10 @@ public class OcrService
      * Jacob Object to wrap A2ia component.
      */
     private Dispatch            _dispatchA2iAObj;
+    /**
+     * clsid active x A2IA.
+     */
+    String                      _strClsid;
 
     /**
      * Load DLL Jacob and _dispatchA2iAObj.
@@ -96,9 +100,7 @@ public class OcrService
             System.load( folder + JACOB_DLL64_FILE );
 
             // Laod A2ia ActiveX component with clsid
-            String clsid = "clsid:{" + AppPropertiesService.getProperty( PROPERTY_A2IA_CLSID ) + "}";
-            ActiveXComponent comp = new ActiveXComponent( clsid );
-            _dispatchA2iAObj = comp.getObject( );
+            _strClsid = "clsid:{" + AppPropertiesService.getProperty( PROPERTY_A2IA_CLSID ) + "}";
 
         } catch ( UnsatisfiedLinkError e )
         {
@@ -124,7 +126,7 @@ public class OcrService
      */
     public Map<String, String> proceed( byte[] byteImageContent, String strFileExtension, String strDocumentType ) throws OcrException
     {
-        if ( _dispatchA2iAObj == null )
+        if ( StringUtils.isEmpty( _strClsid ) )
         {
             AppLogService.error( "Bad initialisation of OCR Service." );
             throw new OcrException( MESSAGE_INIT_ERROR );
@@ -136,16 +138,29 @@ public class OcrService
 
         }
 
+        Variant variantChannelId = null;
+        Variant variantRequestId = null;
         try
         {
-            Variant variantChannelId = openChannelA2ia( );
-            Variant variantRequestId = openRequestA2ia( byteImageContent, strFileExtension, strDocumentType, new Long( variantChannelId.toString( ) ) );
+            variantChannelId = openChannelA2ia( );
+            variantRequestId = openRequestA2ia( byteImageContent, strFileExtension, strDocumentType, new Long( variantChannelId.toString( ) ) );
             // run A2IA OCR engine to get result
             Variant variantResultId = Dispatch.call( _dispatchA2iAObj, "ScrGetResult", variantChannelId, variantRequestId, 60000L );
 
         } catch ( Exception e )
         {
             throw new OcrException( e.getMessage( ) );
+        } finally
+        {
+            if ( variantRequestId != null )
+            {
+                Dispatch.call( _dispatchA2iAObj, "ScrCloseRequest", new Long( variantRequestId.toString( ) ) );
+            }
+            if ( variantChannelId != null )
+            {
+                Dispatch.call( _dispatchA2iAObj, "ScrCloseChannel", new Long( variantChannelId.toString( ) ) );
+            }
+
         }
 
         return null;
@@ -160,12 +175,14 @@ public class OcrService
     {
 
         // Init COM A2IA COM Object
+        ActiveXComponent comp = new ActiveXComponent( _strClsid );
+        _dispatchA2iAObj = comp.getObject( );
         Dispatch.call( _dispatchA2iAObj, "ScrInit", "" );
 
         // Init Param
         Variant variantResChannelParamId = Dispatch.call( _dispatchA2iAObj, "ScrCreateChannelParam" );
-        Dispatch.call( _dispatchA2iAObj, SET_PROPERTY_A2IA, new Long( variantResChannelParamId.toString( ) ), "cpu[1].cpuServer", AppPropertiesService.getProperty( PROPERTY_A2IA_SERVER_HOST ), "" );
-        Dispatch.call( _dispatchA2iAObj, SET_PROPERTY_A2IA, new Long( variantResChannelParamId.toString( ) ), "cpu[1].portServer", AppPropertiesService.getProperty( PROPERTY_A2IA_SERVER_PORT ), "" );
+        Dispatch.call( _dispatchA2iAObj, SET_PROPERTY_A2IA, new Long( variantResChannelParamId.toString( ) ), "cpu[1].cpuServer", AppPropertiesService.getProperty( PROPERTY_A2IA_SERVER_HOST, "" ) );
+        Dispatch.call( _dispatchA2iAObj, SET_PROPERTY_A2IA, new Long( variantResChannelParamId.toString( ) ), "cpu[1].portServer", AppPropertiesService.getProperty( PROPERTY_A2IA_SERVER_PORT, "" ) );
         Dispatch.call( _dispatchA2iAObj, SET_PROPERTY_A2IA, new Long( variantResChannelParamId.toString( ) ), "cpu[1].paramdir", AppPropertiesService.getProperty( PROPERTY_A2IA_PARAM_DIR ) );
 
         // Open channel
