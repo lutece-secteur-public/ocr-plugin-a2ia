@@ -137,6 +137,7 @@ public class OcrService
 
         } catch ( Exception e )
         {
+            AppLogService.error( e.getMessage( ), e );
             throw new OcrException( e.getMessage( ) );
         } finally
         {
@@ -203,7 +204,7 @@ public class OcrService
         Object[] imageObjects = new Object[byteImageContent.length];
         for ( int i = 0; i < byteImageContent.length; i++ )
         {
-            imageObjects[i] = new Byte( byteImageContent[i] );
+            imageObjects[i] = byteImageContent[i];
         }
 
         // Open Tbl doc
