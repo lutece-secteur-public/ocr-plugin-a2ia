@@ -42,40 +42,51 @@ public final class OcrConstants
 {
 
     // i18n message
-    public static final String MESSAGE_PARAMETER_MANDATORY      = "ocra2ia.message.error.parameters.mandatory";
-    public static final String MESSAGE_INIT_ERROR               = "ocra2ia.message.error.init.ocr";
-    public static final String MESSAGE_DOCUMENT_TYPE_ERROR      = "ocra2ia.message.error.documentType";
+    public static final String MESSAGE_PARAMETER_MANDATORY                 = "ocra2ia.message.error.parameters.mandatory";
+    public static final String MESSAGE_INIT_ERROR                          = "ocra2ia.message.error.init.ocr";
+    public static final String MESSAGE_DOCUMENT_TYPE_ERROR                 = "ocra2ia.message.error.documentType";
 
     // properties
-    public static final String PROPERTY_FOLDER_DLL_JACOB        = "ocra2ia.jacob.dll";
-    public static final String PROPERTY_A2IA_CLSID              = "ocra2ia.activex.clsid";
-    public static final String PROPERTY_A2IA_SERVER_HOST        = "ocra2ia.server.host";
-    public static final String PROPERTY_A2IA_SERVER_PORT        = "ocra2ia.server.port";
-    public static final String PROPERTY_A2IA_PARAM_DIR          = "ocra2ia.param.dir";
-    public static final String PROPERTY_A2IA_DOCUMENT_RIB       = "ocra2ia.document.rib";
-    public static final String PROPERTY_A2IA_DOCUMENT_TAX       = "ocra2ia.document.tax";
-    public static final String PROPERTY_A2IA_TBL_RIB            = "ocra2ia.tbl.rib";
-    public static final String PROPERTY_A2IA_TBL_TAX            = "ocra2ia.tbl.tax";
-    public static final String PROPERTY_RIB_RESULT              = "ocra2ia.result.rib.result";
-    public static final String PROPERTY_RIB_RESULT_CODE_BANQUE  = "ocra2ia.result.rib.codebanque";
-    public static final String PROPERTY_RIB_RESULT_CODE_GUICHET = "ocra2ia.result.rib.codeguichet";
-    public static final String PROPERTY_RIB_RESULT_N_COMPTE     = "ocra2ia.result.rib.numerocompte";
-    public static final String PROPERTY_RIB_RESULT_CLE          = "ocra2ia.result.rib.cle";
-    public static final String PROPERTY_RIB_RESULT_IBAN         = "ocra2ia.result.rib.iban";
-    public static final String PROPERTY_RIB_RESULT_BIC          = "ocra2ia.result.rib.bic";
+    public static final String PROPERTY_FOLDER_DLL_JACOB                   = "ocra2ia.jacob.dll";
+    public static final String PROPERTY_A2IA_CLSID                         = "ocra2ia.activex.clsid";
+    public static final String PROPERTY_A2IA_SERVER_HOST                   = "ocra2ia.server.host";
+    public static final String PROPERTY_A2IA_SERVER_PORT                   = "ocra2ia.server.port";
+    public static final String PROPERTY_A2IA_PARAM_DIR                     = "ocra2ia.param.dir";
+    public static final String PROPERTY_A2IA_DOCUMENT_RIB                  = "ocra2ia.document.rib";
+    public static final String PROPERTY_A2IA_DOCUMENT_TAX                  = "ocra2ia.document.tax";
+    public static final String PROPERTY_A2IA_TBL_RIB                       = "ocra2ia.tbl.rib";
+    public static final String PROPERTY_A2IA_TBL_TAX                       = "ocra2ia.tbl.tax";
+    public static final String PROPERTY_RIB_RESULT                         = "ocra2ia.result.rib.result";
+    public static final String PROPERTY_RIB_RESULT_CODE_BANQUE             = "ocra2ia.result.rib.codebanque";
+    public static final String PROPERTY_RIB_RESULT_CODE_GUICHET            = "ocra2ia.result.rib.codeguichet";
+    public static final String PROPERTY_RIB_RESULT_N_COMPTE                = "ocra2ia.result.rib.numerocompte";
+    public static final String PROPERTY_RIB_RESULT_CLE                     = "ocra2ia.result.rib.cle";
+    public static final String PROPERTY_RIB_RESULT_IBAN                    = "ocra2ia.result.rib.iban";
+    public static final String PROPERTY_RIB_RESULT_BIC                     = "ocra2ia.result.rib.bic";
+    public static final String PROPERTY_RIB_RESULT_ADDRESS                 = "ocra2ia.result.rib.address";
+    public static final String PROPERTY_TAX_ASSESSMENT_RESULT_ADDRESS      = "ocra2ia.result.taxassessment.address";
+    public static final String PROPERTY_TAX_ASSESSMENT_RESULT_DATE         = "ocra2ia.result.taxassessment.date";
+    public static final String PROPERTY_TAX_ASSESSMENT_RESULT_TAX_AMOUNT   = "ocra2ia.result.taxassessment.taxamount";
 
     // constants
-    public static final String JACOB_DLL64_FILE                 = "jacob-1.19-x64.dll";
-    public static final String SET_PROPERTY_A2IA                = "SetProperty";
+    public static final String JACOB_DLL64_FILE                            = "jacob-1.19-x64.dll";
+    public static final String SET_PROPERTY_A2IA                           = "SetProperty";
+    public static final String GET_PROPERTY_A2IA                           = "ObjectProperty";
 
     // constants rib
-    public static final String OUTPUT_ZONE_RIB                  = "documentTypeInfo.CaseSpecific.specificOutput.subTypeInfo.CaseRIB.RIB.result.reco";
-    public static final String OUTPUT_ZONE_RIB_CODE_BANQUE      = "documentTypeInfo.CaseSpecific.specificOutput.subTypeInfo.CaseRIB.RIB.codeBanque.reco";
-    public static final String OUTPUT_ZONE_RIB_CODE_GUICHET     = "documentTypeInfo.CaseSpecific.specificOutput.subTypeInfo.CaseRIB.RIB.codeGuichet.reco";
-    public static final String OUTPUT_ZONE_RIB_N_COMPTE         = "documentTypeInfo.CaseSpecific.specificOutput.subTypeInfo.CaseRIB.RIB.numeroDeCompte.reco";
-    public static final String OUTPUT_ZONE_RIB_CLE              = "documentTypeInfo.CaseSpecific.specificOutput.subTypeInfo.CaseRIB.RIB.cle.reco";
-    public static final String OUTPUT_ZONE_RIB_IBAN             = "documentTypeInfo.CaseSpecific.specificOutput.subTypeInfo.CaseRIB.IBAN.reco";
-    public static final String OUTPUT_ZONE_RIB_BIC              = "documentTypeInfo.CaseSpecific.specificOutput.subTypeInfo.CaseRIB.BIC.reco";
+    public static final String OUTPUT_ZONE_RIB                             = "documentTypeInfo.CaseSpecific.specificOutput.subTypeInfo.CaseRIB.RIB.result.reco";
+    public static final String OUTPUT_ZONE_RIB_CODE_BANQUE                 = "documentTypeInfo.CaseSpecific.specificOutput.subTypeInfo.CaseRIB.RIB.codeBanque.reco";
+    public static final String OUTPUT_ZONE_RIB_CODE_GUICHET                = "documentTypeInfo.CaseSpecific.specificOutput.subTypeInfo.CaseRIB.RIB.codeGuichet.reco";
+    public static final String OUTPUT_ZONE_RIB_N_COMPTE                    = "documentTypeInfo.CaseSpecific.specificOutput.subTypeInfo.CaseRIB.RIB.numeroDeCompte.reco";
+    public static final String OUTPUT_ZONE_RIB_CLE                         = "documentTypeInfo.CaseSpecific.specificOutput.subTypeInfo.CaseRIB.RIB.cle.reco";
+    public static final String OUTPUT_ZONE_RIB_IBAN                        = "documentTypeInfo.CaseSpecific.specificOutput.subTypeInfo.CaseRIB.IBAN.reco";
+    public static final String OUTPUT_ZONE_RIB_BIC                         = "documentTypeInfo.CaseSpecific.specificOutput.subTypeInfo.CaseRIB.BIC.reco";
+    public static final String OUTPUT_ZONE_RIB_ADDRESS                     = "documentTypeInfo.CaseSpecific.specificOutput.subTypeInfo.CaseRIB.address.lines";
+
+    // constants tax assessment
+    public static final String OUTPUT_ZONE_TAX_ASSESSMENT_ADDRESS          = "documentTypeInfo.CaseSpecific.specificOutput.subTypeInfo.CaseTaxAssessment.taxPayerAddress.address.lines";
+    public static final String OUTPUT_ZONE_TAX_ASSESSMENT_ESTABLISHED_DATE = "documentTypeInfo.CaseSpecific.specificOutput.subTypeInfo.CaseTaxAssessment.establishedDate.reco";
+    public static final String OUTPUT_ZONE_TAX_ASSESSMENT_TAX_AMOUNT       = "documentTypeInfo.CaseSpecific.specificOutput.subTypeInfo.CaseTaxAssessment.taxAmount.reco";
 
     /**
      * Default private constructor. Do not call
