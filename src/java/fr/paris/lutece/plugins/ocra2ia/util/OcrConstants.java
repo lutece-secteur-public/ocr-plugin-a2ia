@@ -45,6 +45,7 @@ public final class OcrConstants
     public static final String MESSAGE_PARAMETER_MANDATORY                 = "ocra2ia.message.error.parameters.mandatory";
     public static final String MESSAGE_INIT_ERROR                          = "ocra2ia.message.error.init.ocr";
     public static final String MESSAGE_DOCUMENT_TYPE_ERROR                 = "ocra2ia.message.error.documentType";
+    public static final String MESSAGE_FILE_EXTENSION_TYPE_ERROR           = "ocra2ia.message.error.fileextension";
 
     // properties
     public static final String PROPERTY_FOLDER_DLL_JACOB                   = "ocra2ia.jacob.dll";
@@ -55,6 +56,7 @@ public final class OcrConstants
     public static final String PROPERTY_A2IA_DOCUMENT_RIB                  = "ocra2ia.document.rib";
     public static final String PROPERTY_A2IA_DOCUMENT_TAX                  = "ocra2ia.document.tax";
     public static final String PROPERTY_A2IA_DOCUMENT_IDENTITY             = "ocra2ia.document.identity";
+    public static final String PROPERTY_A2IA_EXTENSION_FILE_AUTHORIZED     = "ocra2ia.extension.file";
     public static final String PROPERTY_A2IA_TBL_RIB                       = "ocra2ia.tbl.rib";
     public static final String PROPERTY_A2IA_TBL_TAX                       = "ocra2ia.tbl.tax";
     public static final String PROPERTY_A2IA_TBL_IDENTITY                  = "ocra2ia.tbl.identity";

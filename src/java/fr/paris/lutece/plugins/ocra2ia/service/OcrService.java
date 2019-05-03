@@ -33,6 +33,7 @@
  */
 package fr.paris.lutece.plugins.ocra2ia.service;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -119,6 +120,13 @@ public class OcrService
         {
             throw new OcrException( I18nService.getLocalizedString( OcrConstants.MESSAGE_PARAMETER_MANDATORY, Locale.getDefault( ) ) );
 
+        }
+
+        if ( Arrays.asList( AppPropertiesService.getProperty( OcrConstants.PROPERTY_A2IA_EXTENSION_FILE_AUTHORIZED ).split( "," ) ).stream( ).noneMatch( extension -> extension.equals( strFileExtension ) ) )
+        {
+            AppLogService.error( "Bad value for file extension." );
+            String[] messageArgs = { strFileExtension };
+            throw new OcrException( I18nService.getLocalizedString( OcrConstants.MESSAGE_FILE_EXTENSION_TYPE_ERROR, messageArgs, Locale.getDefault( ) ) );
         }
 
         Map<String, String> mapOcrServiceResults = new HashMap<>( );
