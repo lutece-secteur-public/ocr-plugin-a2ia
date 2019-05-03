@@ -121,7 +121,7 @@ public class OcrService
 
         }
 
-        Map<String,String> mapOcrServiceResults = new HashMap<>( );
+        Map<String, String> mapOcrServiceResults = new HashMap<>( );
 
         Variant variantChannelId = null;
         Variant variantRequestId = null;
@@ -243,6 +243,9 @@ public class OcrService
         } else if ( strDocumentType.equalsIgnoreCase( AppPropertiesService.getProperty( OcrConstants.PROPERTY_A2IA_DOCUMENT_TAX ) ) )
         {
             strTblDocumentPath = AppPropertiesService.getProperty( OcrConstants.PROPERTY_A2IA_TBL_TAX );
+        } else if ( strDocumentType.equalsIgnoreCase( AppPropertiesService.getProperty( OcrConstants.PROPERTY_A2IA_DOCUMENT_IDENTITY ) ) )
+        {
+            strTblDocumentPath = AppPropertiesService.getProperty( OcrConstants.PROPERTY_A2IA_TBL_IDENTITY );
         } else
         {
             AppLogService.error( "Bad value for document type" );

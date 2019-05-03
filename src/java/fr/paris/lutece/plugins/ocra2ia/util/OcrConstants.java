@@ -54,8 +54,10 @@ public final class OcrConstants
     public static final String PROPERTY_A2IA_PARAM_DIR                     = "ocra2ia.param.dir";
     public static final String PROPERTY_A2IA_DOCUMENT_RIB                  = "ocra2ia.document.rib";
     public static final String PROPERTY_A2IA_DOCUMENT_TAX                  = "ocra2ia.document.tax";
+    public static final String PROPERTY_A2IA_DOCUMENT_IDENTITY             = "ocra2ia.document.identity";
     public static final String PROPERTY_A2IA_TBL_RIB                       = "ocra2ia.tbl.rib";
     public static final String PROPERTY_A2IA_TBL_TAX                       = "ocra2ia.tbl.tax";
+    public static final String PROPERTY_A2IA_TBL_IDENTITY                  = "ocra2ia.tbl.identity";
     public static final String PROPERTY_RIB_RESULT                         = "ocra2ia.result.rib.result";
     public static final String PROPERTY_RIB_RESULT_CODE_BANQUE             = "ocra2ia.result.rib.codebanque";
     public static final String PROPERTY_RIB_RESULT_CODE_GUICHET            = "ocra2ia.result.rib.codeguichet";
@@ -67,6 +69,16 @@ public final class OcrConstants
     public static final String PROPERTY_TAX_ASSESSMENT_RESULT_ADDRESS      = "ocra2ia.result.taxassessment.address";
     public static final String PROPERTY_TAX_ASSESSMENT_RESULT_DATE         = "ocra2ia.result.taxassessment.date";
     public static final String PROPERTY_TAX_ASSESSMENT_RESULT_TAX_AMOUNT   = "ocra2ia.result.taxassessment.taxamount";
+    public static final String PROPERTY_IDENTITY_FIRST_NAME                = "ocra2ia.result.identity.firstname";
+    public static final String PROPERTY_IDENTITY_LAST_NAME                 = "ocra2ia.result.identity.lastname";
+    public static final String PROPERTY_IDENTITY_BIRTH_DATE                = "ocra2ia.result.identity.birthdate";
+    public static final String PROPERTY_IDENTITY_BIRTH_PLACE               = "ocra2ia.result.identity.placeofbirth";
+    public static final String PROPERTY_IDENTITY_EXPIRATION_DATE           = "ocra2ia.result.identity.expirationdate";
+    public static final String PROPERTY_IDENTITY_ISSUE_DATE                = "ocra2ia.result.identity.issuedate";
+    public static final String PROPERTY_IDENTITY_GENDER                    = "ocra2ia.result.identity.gender";
+    public static final String PROPERTY_IDENTITY_NATIONALITY               = "ocra2ia.result.identity.nationality";
+    public static final String PROPERTY_IDENTITY_ID_NUMBER                 = "ocra2ia.result.identity.idNumber";
+    public static final String PROPERTY_IDENTITY_ADDRESS                   = "ocra2ia.result.identity.address";
 
     // constants
     public static final String JACOB_DLL64_FILE                            = "jacob-1.19-x64.dll";
@@ -87,6 +99,18 @@ public final class OcrConstants
     public static final String OUTPUT_ZONE_TAX_ASSESSMENT_ADDRESS          = "documentTypeInfo.CaseSpecific.specificOutput.subTypeInfo.CaseTaxAssessment.taxPayerAddress.address.lines";
     public static final String OUTPUT_ZONE_TAX_ASSESSMENT_ESTABLISHED_DATE = "documentTypeInfo.CaseSpecific.specificOutput.subTypeInfo.CaseTaxAssessment.establishedDate.reco";
     public static final String OUTPUT_ZONE_TAX_ASSESSMENT_TAX_AMOUNT       = "documentTypeInfo.CaseSpecific.specificOutput.subTypeInfo.CaseTaxAssessment.taxAmount.reco";
+
+    // constant identity document
+    public static final String OUTPUT_ZONE_IDENTITY_FIRST_NAME             = "documentTypeInfo.CaseSpecific.specificOutput.subTypeInfo.CaseIdentityDocument.identity.firstName.reco";
+    public static final String OUTPUT_ZONE_IDENTITY_LAST_NAME              = "documentTypeInfo.CaseSpecific.specificOutput.subTypeInfo.CaseIdentityDocument.identity.lastName.reco";
+    public static final String OUTPUT_ZONE_IDENTITY_BIRTH_DATE             = "documentTypeInfo.CaseSpecific.specificOutput.subTypeInfo.CaseIdentityDocument.identity.birthDate.reco";
+    public static final String OUTPUT_ZONE_IDENTITY_BIRTH_PLACE            = "documentTypeInfo.CaseSpecific.specificOutput.subTypeInfo.CaseIdentityDocument.identity.placeOfBirth.reco";
+    public static final String OUTPUT_ZONE_IDENTITY_EXPIRATION_DATE        = "documentTypeInfo.CaseSpecific.specificOutput.subTypeInfo.CaseIdentityDocument.identity.expirationDate.reco";
+    public static final String OUTPUT_ZONE_IDENTITY_ISSUE_DATE             = "documentTypeInfo.CaseSpecific.specificOutput.subTypeInfo.CaseIdentityDocument.identity.issueDate.reco";
+    public static final String OUTPUT_ZONE_IDENTITY_GENDER                 = "documentTypeInfo.CaseSpecific.specificOutput.subTypeInfo.CaseIdentityDocument.identity.gender.reco";
+    public static final String OUTPUT_ZONE_IDENTITY_NATIONALITY            = "documentTypeInfo.CaseSpecific.specificOutput.subTypeInfo.CaseIdentityDocument.identity.nationality.reco";
+    public static final String OUTPUT_ZONE_IDENTITY_ID_NUMBER              = "documentTypeInfo.CaseSpecific.specificOutput.subTypeInfo.CaseIdentityDocument.identity.idNumber.reco";
+    public static final String OUTPUT_ZONE_IDENTITY_ADDRESS                = "documentTypeInfo.CaseSpecific.specificOutput.subTypeInfo.CaseIdentityDocument.identity.address";
 
     /**
      * Default private constructor. Do not call

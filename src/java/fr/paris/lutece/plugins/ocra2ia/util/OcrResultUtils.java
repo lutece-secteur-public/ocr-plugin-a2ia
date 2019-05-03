@@ -83,6 +83,9 @@ public final class OcrResultUtils
         } else if ( strDocumentType.equalsIgnoreCase( AppPropertiesService.getProperty( OcrConstants.PROPERTY_A2IA_DOCUMENT_TAX ) ) )
         {
             return getTaxAssessmentResult( dispatchA2iaObject, variantResultOcrId );
+        } else if ( strDocumentType.equalsIgnoreCase( AppPropertiesService.getProperty( OcrConstants.PROPERTY_A2IA_DOCUMENT_IDENTITY ) ) )
+        {
+            return getIdentityResult( dispatchA2iaObject, variantResultOcrId );
         }
 
         return null;
@@ -154,6 +157,55 @@ public final class OcrResultUtils
         getA2iaOutputResult( a2iaOutputTaxAmonut, dispatchA2iaObject, variantResultOcrId, mapOcrTaxResult );
 
         return mapOcrTaxResult;
+    }
+
+    /**
+     * Get Ocr results for identity card document.
+     *
+     * @param dispatchA2iaObject
+     *            A2ia Jacob wrapper
+     * @param variantResultOcrId
+     *            id result Ocr A2ia
+     * @return Map result of OCR
+     */
+    private static Map<String, String> getIdentityResult( Dispatch dispatchA2iaObject, Variant variantResultOcrId )
+    {
+
+        Map<String, String> mapOcrIdentityResult = new HashMap<>( );
+
+        List<A2iaOutput> listA2iaOutputIdentity = new ArrayList<>( );
+        listA2iaOutputIdentity
+        .add( new A2iaOutput( AppPropertiesService.getProperty( OcrConstants.PROPERTY_IDENTITY_FIRST_NAME ), OcrConstants.OUTPUT_ZONE_IDENTITY_FIRST_NAME, Variant.VariantString ) );
+        listA2iaOutputIdentity
+        .add( new A2iaOutput( AppPropertiesService.getProperty( OcrConstants.PROPERTY_IDENTITY_LAST_NAME ), OcrConstants.OUTPUT_ZONE_IDENTITY_LAST_NAME, Variant.VariantString ) );
+        listA2iaOutputIdentity
+        .add( new A2iaOutput( AppPropertiesService.getProperty( OcrConstants.PROPERTY_IDENTITY_BIRTH_PLACE ), OcrConstants.OUTPUT_ZONE_IDENTITY_BIRTH_PLACE, Variant.VariantString ) );
+        listA2iaOutputIdentity.add( new A2iaOutput( AppPropertiesService.getProperty( OcrConstants.PROPERTY_IDENTITY_GENDER ), OcrConstants.OUTPUT_ZONE_IDENTITY_GENDER, Variant.VariantString ) );
+        listA2iaOutputIdentity
+        .add( new A2iaOutput( AppPropertiesService.getProperty( OcrConstants.PROPERTY_IDENTITY_NATIONALITY ), OcrConstants.OUTPUT_ZONE_IDENTITY_NATIONALITY, Variant.VariantString ) );
+        listA2iaOutputIdentity.add( new A2iaOutput( AppPropertiesService.getProperty( OcrConstants.PROPERTY_IDENTITY_ID_NUMBER ), OcrConstants.OUTPUT_ZONE_IDENTITY_ID_NUMBER, Variant.VariantInt ) );
+
+        listA2iaOutputIdentity.forEach( a2iaOutput ->
+        {
+            getA2iaOutputResult( a2iaOutput, dispatchA2iaObject, variantResultOcrId, mapOcrIdentityResult );
+
+        } );
+
+        listA2iaOutputIdentity.clear( );
+
+        listA2iaOutputIdentity
+        .add( new A2iaOutput( AppPropertiesService.getProperty( OcrConstants.PROPERTY_IDENTITY_BIRTH_DATE ), OcrConstants.OUTPUT_ZONE_IDENTITY_BIRTH_DATE, Variant.VariantString ) );
+        listA2iaOutputIdentity
+        .add( new A2iaOutput( AppPropertiesService.getProperty( OcrConstants.PROPERTY_IDENTITY_EXPIRATION_DATE ), OcrConstants.OUTPUT_ZONE_IDENTITY_EXPIRATION_DATE, Variant.VariantString ) );
+        listA2iaOutputIdentity
+        .add( new A2iaOutput( AppPropertiesService.getProperty( OcrConstants.PROPERTY_IDENTITY_ISSUE_DATE ), OcrConstants.OUTPUT_ZONE_IDENTITY_ISSUE_DATE, Variant.VariantString ) );
+
+        listA2iaOutputIdentity.forEach( a2iaOutputDate ->
+        {
+            getA2iaOutputResultDate( a2iaOutputDate, dispatchA2iaObject, variantResultOcrId, mapOcrIdentityResult );
+        } );
+
+        return mapOcrIdentityResult;
     }
 
     /**
