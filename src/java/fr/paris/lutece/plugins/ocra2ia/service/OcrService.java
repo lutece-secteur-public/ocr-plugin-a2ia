@@ -100,9 +100,9 @@ public class OcrService
      * @param byteImageContent
      *            image to process
      * @param strFileExtension
-     *            image extension
+     *            image extension : values allowed : Tiff, Bmp, Jpeg
      * @param strDocumentType
-     *            document type : values allowed : Rib, TaxAssessment
+     *            document type : values allowed : Rib, TaxAssessment,Identity
      * @return Map result of OCR
      * @throws OcrException
      *             the OcrException
@@ -122,7 +122,8 @@ public class OcrService
 
         }
 
-        if ( Arrays.asList( AppPropertiesService.getProperty( OcrConstants.PROPERTY_A2IA_EXTENSION_FILE_AUTHORIZED ).split( "," ) ).stream( ).noneMatch( extension -> extension.equals( strFileExtension ) ) )
+        if ( Arrays.asList( AppPropertiesService.getProperty( OcrConstants.PROPERTY_A2IA_EXTENSION_FILE_AUTHORIZED ).split( "," ) ).stream( )
+                .noneMatch( extension -> extension.equals( strFileExtension ) ) )
         {
             AppLogService.error( "Bad value for file extension." );
             String[] messageArgs = { strFileExtension };
