@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+    <properties>
+        <title>Plugin ocra2ia</title>
+    </properties>
+    <body>
+        <section name="Plugin ocra2ia">
+           <subsection id="presentation" name="Presentation">
+            <p>
+              This plugin makes it possible to perform optical character recognition (OCR) on 3 types of documents:
+              <ul>
+                <li>RIB : may read the following information Code Etablissement, Code Guichet, Numero de compte, Cle, IBAN, BIC, the name and address of the account holder</li>
+                <li>Tax assessment : may read the following information Tax amount, established date, tax payer name and address</li>
+                <li>Identity card : may read the following information name, address, birth date, nationality, gender, id number, ...</li>
+              </ul>
+            </p>
+            <p>
+             The plugin will query the A2IA engine (<a href="https://www.a2ia.com/en">https://www.a2ia.com/en</a>) that will proceed to the OCR, then the plugin returns the results in a HashMap.
+            </p>
+           </subsection>
+           <subsection id="important" name="Important">
+             <p>
+               To work with A2ia, the plugin uses the Jacob library (<a href="https://sourceforge.net/projects/jacob-project">https://sourceforge.net/projects/jacob-project</a>). 
+               The use of Jacob requires the loading of the Windows DLL  file jacob-1.19-x64.dll. That why the site-Lutèce using this plugin <b>must be deployed on a Windows server</b>.
+             </p>
+           </subsection>
+           
+           <subsection id="how" name="How to use it">
+             <p>
+               The plugin contains a single bean Spring OcrService that offers a "proceed" method to launch the OCR and retrieve the results.
+			 </p>
+			 <p>
+               <code type="java">
+                 /**
+				     * Perform OCR with A2iA.
+				     *
+				     * @param byteImageContent
+				     *            image to process
+				     * @param strFileExtension
+				     *            image extension : values allowed : Tiff, Bmp, Jpeg
+				     * @param strDocumentType
+				     *            document type : values allowed : Rib, TaxAssessment,Identity
+				     * @return Map result of OCR
+				     * @throws OcrException
+				     *             the OcrException
+				     *
+				     */
+					 public Map&lt;String, String&gt; proceed( byte[] byteImageContent, String strFileExtension, String strDocumentType ) throws OcrException
+                 
+               </code>
+             </p>
+           </subsection>
+           
+           <subsection id="properties" name="File ocra2ia.properties description">
+             <p>
+			  <ul>
+               <li><b>ocra2ia.jacob.dll : </b> path to directory that contains jacob-1.19-x64.dll file.</li>
+               <li><b>ocra2ia.activex.clsid : </b> clsid of activeX A2ia. To find it open Window Registry Editor and go to path Computer\HKEY_CLASSES_ROOT\A2iAMobilityCOM.APIMobility64\CLSID.</li>
+               <li><b>ocra2ia.server.host : </b> machine host of A2ia server. Must be empty for localhost (Lutèce-site and A2ia server on same machine).</li>
+               <li><b>ocra2ia.server.port : </b> port to access A2ia server in remote. Must be empty for localhost (Lutèce-site and A2ia server on same machine).</li>
+               <li><b>ocra2ia.param.dir : </b> path to param A2ia directory.</li>
+               <li><b>ocra2ia.document.rib : </b> value for document type RIB.</li>
+               <li><b>ocra2ia.document.tax : </b> value for document type Tax Assessement.</li>
+               <li><b>ocra2ia.document.identity : </b>value for document type Identity card.</li>
+               <li><b>ocra2ia.extension.file : </b> file extension allowed (must be always equal to Tiff,Bmp,Jpeg).</li>
+               <li><b>ocra2ia.tbl.* : </b>path to tbl document corresponding to the document type.</li>
+               <li><b>ocra2ia.result.* : </b>key corresponding to the result of the ocr for a field.</li>
+               </ul>			   
+             </p>
+           </subsection> 
+        </section>
+    </body>
+</document>
