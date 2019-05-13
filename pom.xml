@@ -34,6 +34,11 @@
 				<enabled>false</enabled>
 			</releases>
 		</repository>
+		<repository>
+                        <id>lutece_third_party</id>
+                        <url>https://dev.lutece.paris.fr/nexus/content/repositories/lutece_third_party</url>
+                </repository>
+
 	</repositories>
 
 	<dependencies>
@@ -46,10 +51,9 @@
 
 		<!-- Jacob JNI COM Bridge -->
 		<dependency>
-			<groupId>com.jacob</groupId>
-			<artifactId>jacob</artifactId>
-			<version>1.19</version>
-			<type>jar</type>
+  			<groupId>com.jacob</groupId>
+  			<artifactId>jacob</artifactId>
+  			<version>1.19</version>
 		</dependency>
 	</dependencies>
 
