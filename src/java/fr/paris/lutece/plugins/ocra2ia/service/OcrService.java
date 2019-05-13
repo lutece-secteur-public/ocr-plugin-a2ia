@@ -33,6 +33,7 @@
  */
 package fr.paris.lutece.plugins.ocra2ia.service;
 
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
@@ -46,6 +47,8 @@ import com.jacob.com.Dispatch;
 import com.jacob.com.Variant;
 
 import fr.paris.lutece.plugins.ocra2ia.exception.OcrException;
+import fr.paris.lutece.plugins.ocra2ia.util.OcrConstants;
+import fr.paris.lutece.plugins.ocra2ia.util.OcrResultUtils;
 import fr.paris.lutece.portal.service.i18n.I18nService;
 import fr.paris.lutece.portal.service.util.AppLogService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
@@ -58,34 +61,14 @@ import fr.paris.lutece.portal.service.util.AppPropertiesService;
 public class OcrService
 {
 
-    // i18n message
-    private static final String MESSAGE_PARAMETER_MANDATORY = "ocra2ia.message.error.parameters.mandatory";
-    private static final String MESSAGE_INIT_ERROR          = "ocra2ia.message.error.init.ocr";
-    private static final String MESSAGE_DOCUMENT_TYPE_ERROR = "ocra2ia.message.error.documentType";
-
-    // properties
-    private static final String PROPERTY_FOLDER_DLL_JACOB   = "ocra2ia.jacob.dll";
-    private static final String PROPERTY_A2IA_CLSID         = "ocra2ia.activex.clsid";
-    private static final String PROPERTY_A2IA_SERVER_HOST   = "ocra2ia.server.host";
-    private static final String PROPERTY_A2IA_SERVER_PORT   = "ocra2ia.server.port";
-    private static final String PROPERTY_A2IA_PARAM_DIR     = "ocra2ia.param.dir";
-    private static final String PROPERTY_A2IA_DOCUMENT_RIB  = "ocra2ia.document.rib";
-    private static final String PROPERTY_A2IA_DOCUMENT_TAX  = "ocra2ia.document.tax";
-    private static final String PROPERTY_A2IA_TBL_RIB       = "ocra2ia.tbl.rib";
-    private static final String PROPERTY_A2IA_TBL_TAX       = "ocra2ia.tbl.tax";
-
-    // constants
-    private static final String JACOB_DLL64_FILE            = "jacob-1.19-x64.dll";
-    private static final String SET_PROPERTY_A2IA           = "SetProperty";
-
     /**
      * Jacob Object to wrap A2ia component.
      */
-    private Dispatch            _dispatchA2iAObj;
+    private Dispatch _dispatchA2iAObj;
     /**
      * clsid active x A2IA.
      */
-    String                      _strClsid;
+    String           _strClsid;
 
     /**
      * Load DLL Jacob and _dispatchA2iAObj.
@@ -95,12 +78,12 @@ public class OcrService
     {
         try
         {
-            String folder = AppPropertiesService.getProperty( PROPERTY_FOLDER_DLL_JACOB );
+            String folder = AppPropertiesService.getProperty( OcrConstants.PROPERTY_FOLDER_DLL_JACOB );
             // Load Jacob dll
-            System.load( folder + JACOB_DLL64_FILE );
+            System.load( folder + OcrConstants.JACOB_DLL64_FILE );
 
             // Laod A2ia ActiveX component with clsid
-            _strClsid = "clsid:{" + AppPropertiesService.getProperty( PROPERTY_A2IA_CLSID ) + "}";
+            _strClsid = "clsid:{" + AppPropertiesService.getProperty( OcrConstants.PROPERTY_A2IA_CLSID ) + "}";
 
         } catch ( UnsatisfiedLinkError e )
         {
@@ -129,14 +112,16 @@ public class OcrService
         if ( StringUtils.isEmpty( _strClsid ) )
         {
             AppLogService.error( "Bad initialisation of OCR Service." );
-            throw new OcrException( MESSAGE_INIT_ERROR );
+            throw new OcrException( OcrConstants.MESSAGE_INIT_ERROR );
         }
 
         if ( ArrayUtils.isEmpty( byteImageContent ) || StringUtils.isEmpty( strFileExtension ) || StringUtils.isEmpty( strDocumentType ) )
         {
-            throw new OcrException( I18nService.getLocalizedString( MESSAGE_PARAMETER_MANDATORY, Locale.getDefault( ) ) );
+            throw new OcrException( I18nService.getLocalizedString( OcrConstants.MESSAGE_PARAMETER_MANDATORY, Locale.getDefault( ) ) );
 
         }
+
+        Map<String, String> mapOcrServiceResults = new HashMap<>( );
 
         Variant variantChannelId = null;
         Variant variantRequestId = null;
@@ -145,10 +130,14 @@ public class OcrService
             variantChannelId = openChannelA2ia( );
             variantRequestId = openRequestA2ia( byteImageContent, strFileExtension, strDocumentType, new Long( variantChannelId.toString( ) ) );
             // run A2IA OCR engine to get result
+            AppLogService.info( "Call a2ia engine begin" );
             Variant variantResultId = Dispatch.call( _dispatchA2iAObj, "ScrGetResult", variantChannelId, variantRequestId, 60000L );
+            mapOcrServiceResults = OcrResultUtils.getOcrResults( strDocumentType, _dispatchA2iAObj, variantResultId );
+            AppLogService.info( "Call a2ia engine end" );
 
         } catch ( Exception e )
         {
+            AppLogService.error( e.getMessage( ), e );
             throw new OcrException( e.getMessage( ) );
         } finally
         {
@@ -163,7 +152,7 @@ public class OcrService
 
         }
 
-        return null;
+        return mapOcrServiceResults;
     }
 
     /**
@@ -181,9 +170,12 @@ public class OcrService
 
         // Init Param
         Variant variantResChannelParamId = Dispatch.call( _dispatchA2iAObj, "ScrCreateChannelParam" );
-        Dispatch.call( _dispatchA2iAObj, SET_PROPERTY_A2IA, new Long( variantResChannelParamId.toString( ) ), "cpu[1].cpuServer", AppPropertiesService.getProperty( PROPERTY_A2IA_SERVER_HOST, "" ) );
-        Dispatch.call( _dispatchA2iAObj, SET_PROPERTY_A2IA, new Long( variantResChannelParamId.toString( ) ), "cpu[1].portServer", AppPropertiesService.getProperty( PROPERTY_A2IA_SERVER_PORT, "" ) );
-        Dispatch.call( _dispatchA2iAObj, SET_PROPERTY_A2IA, new Long( variantResChannelParamId.toString( ) ), "cpu[1].paramdir", AppPropertiesService.getProperty( PROPERTY_A2IA_PARAM_DIR ) );
+        Dispatch.call( _dispatchA2iAObj, OcrConstants.SET_PROPERTY_A2IA, new Long( variantResChannelParamId.toString( ) ), "cpu[1].cpuServer",
+                AppPropertiesService.getProperty( OcrConstants.PROPERTY_A2IA_SERVER_HOST, "" ) );
+        Dispatch.call( _dispatchA2iAObj, OcrConstants.SET_PROPERTY_A2IA, new Long( variantResChannelParamId.toString( ) ), "cpu[1].portServer",
+                AppPropertiesService.getProperty( OcrConstants.PROPERTY_A2IA_SERVER_PORT, "" ) );
+        Dispatch.call( _dispatchA2iAObj, OcrConstants.SET_PROPERTY_A2IA, new Long( variantResChannelParamId.toString( ) ), "cpu[1].paramdir",
+                AppPropertiesService.getProperty( OcrConstants.PROPERTY_A2IA_PARAM_DIR ) );
 
         // Open channel
         Variant variantResChannelId = Dispatch.call( _dispatchA2iAObj, "ScrOpenChannelExt", new Long( variantResChannelParamId.toString( ) ), 10000L );
@@ -209,16 +201,22 @@ public class OcrService
     private Variant openRequestA2ia( byte[] byteImageContent, String strFileExtension, String strDocumentType, Long lChannelId ) throws OcrException
     {
 
+        Object[] imageObjects = new Object[byteImageContent.length];
+        for ( int i = 0; i < byteImageContent.length; i++ )
+        {
+            imageObjects[i] = byteImageContent[i];
+        }
+
         // Open Tbl doc
         Variant variantTblId = Dispatch.call( _dispatchA2iAObj, "ScrOpenDocumentTable", getTblDocumentPath( strDocumentType ) );
         Variant variantDefaultDocId = Dispatch.call( _dispatchA2iAObj, "ScrGetDefaultDocument", new Long( variantTblId.toString( ) ) );
 
         // Following Image Parameters required to be set correctly
-        Dispatch.call( _dispatchA2iAObj, SET_PROPERTY_A2IA, variantDefaultDocId, "image.imageSourceType", "Memory" );
-        Dispatch.call( _dispatchA2iAObj, SET_PROPERTY_A2IA, variantDefaultDocId, "image.inputFormat", strFileExtension ); // format: Tiff, Bmp, or Jpeg
+        Dispatch.call( _dispatchA2iAObj, OcrConstants.SET_PROPERTY_A2IA, variantDefaultDocId, "image.imageSourceType", "Memory" );
+        Dispatch.call( _dispatchA2iAObj, OcrConstants.SET_PROPERTY_A2IA, variantDefaultDocId, "image.inputFormat", strFileExtension ); // format: Tiff, Bmp, or Jpeg
 
         // Then Set the buffer to the corresponding A2iA imageBuffer
-        Dispatch.call( _dispatchA2iAObj, "ScrSetBuffer", variantDefaultDocId, "image.imageSourceTypeInfo.CaseMemory.buffer", byteImageContent ); // from memory
+        Dispatch.call( _dispatchA2iAObj, "ScrSetBuffer", variantDefaultDocId, "image.imageSourceTypeInfo.CaseMemory.buffer", imageObjects ); // from memory
 
         // Open Request
         Variant variantReqId = Dispatch.call( _dispatchA2iAObj, "ScrOpenRequest", lChannelId, new Long( variantDefaultDocId.toString( ) ) );
@@ -239,17 +237,20 @@ public class OcrService
     {
         String strTblDocumentPath = null;
 
-        if ( strDocumentType.equalsIgnoreCase( AppPropertiesService.getProperty( PROPERTY_A2IA_DOCUMENT_RIB ) ) )
+        if ( strDocumentType.equalsIgnoreCase( AppPropertiesService.getProperty( OcrConstants.PROPERTY_A2IA_DOCUMENT_RIB ) ) )
         {
-            strTblDocumentPath = AppPropertiesService.getProperty( PROPERTY_A2IA_TBL_RIB );
-        } else if ( strDocumentType.equalsIgnoreCase( AppPropertiesService.getProperty( PROPERTY_A2IA_DOCUMENT_TAX ) ) )
+            strTblDocumentPath = AppPropertiesService.getProperty( OcrConstants.PROPERTY_A2IA_TBL_RIB );
+        } else if ( strDocumentType.equalsIgnoreCase( AppPropertiesService.getProperty( OcrConstants.PROPERTY_A2IA_DOCUMENT_TAX ) ) )
         {
-            strTblDocumentPath = AppPropertiesService.getProperty( PROPERTY_A2IA_TBL_TAX );
+            strTblDocumentPath = AppPropertiesService.getProperty( OcrConstants.PROPERTY_A2IA_TBL_TAX );
+        } else if ( strDocumentType.equalsIgnoreCase( AppPropertiesService.getProperty( OcrConstants.PROPERTY_A2IA_DOCUMENT_IDENTITY ) ) )
+        {
+            strTblDocumentPath = AppPropertiesService.getProperty( OcrConstants.PROPERTY_A2IA_TBL_IDENTITY );
         } else
         {
             AppLogService.error( "Bad value for document type" );
             String[] messageArgs = { strDocumentType };
-            throw new OcrException( I18nService.getLocalizedString( MESSAGE_DOCUMENT_TYPE_ERROR, messageArgs, Locale.getDefault( ) ) );
+            throw new OcrException( I18nService.getLocalizedString( OcrConstants.MESSAGE_DOCUMENT_TYPE_ERROR, messageArgs, Locale.getDefault( ) ) );
         }
 
         return strTblDocumentPath;
