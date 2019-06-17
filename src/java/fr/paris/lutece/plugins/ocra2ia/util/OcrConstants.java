@@ -46,6 +46,7 @@ public final class OcrConstants
     public static final String MESSAGE_INIT_ERROR                          = "ocra2ia.message.error.init.ocr";
     public static final String MESSAGE_DOCUMENT_TYPE_ERROR                 = "ocra2ia.message.error.documentType";
     public static final String MESSAGE_FILE_EXTENSION_TYPE_ERROR           = "ocra2ia.message.error.fileextension";
+    public static final String MESSAGE_PDF_NUMBER_PAGES_ERROR              = "ocra2ia.message.error.pdfnumberpages";
 
     // properties
     public static final String PROPERTY_FOLDER_DLL_JACOB                   = "ocra2ia.jacob.dll";
@@ -86,6 +87,11 @@ public final class OcrConstants
     public static final String JACOB_DLL64_FILE                            = "jacob-1.19-x64.dll";
     public static final String SET_PROPERTY_A2IA                           = "SetProperty";
     public static final String GET_PROPERTY_A2IA                           = "ObjectProperty";
+    public static final String EXTENSION_FILE_TIFF                         = "Tiff";
+    public static final String EXTENSION_FILE_BMP                          = "Bmp";
+    public static final String EXTENSION_FILE_JPEG                         = "Jpeg";
+    public static final String EXTENSION_FILE_JPG                          = "Jpg";
+    public static final String EXTENSION_FILE_PDF                          = "Pdf";
 
     // constants rib
     public static final String OUTPUT_ZONE_RIB                             = "documentTypeInfo.CaseSpecific.specificOutput.subTypeInfo.CaseRIB.RIB.result.reco";

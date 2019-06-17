@@ -35,9 +35,9 @@
 			</releases>
 		</repository>
 		<repository>
-                        <id>lutece_third_party</id>
-                        <url>https://dev.lutece.paris.fr/nexus/content/repositories/lutece_third_party</url>
-                </repository>
+			<id>lutece_third_party</id>
+			<url>https://dev.lutece.paris.fr/nexus/content/repositories/lutece_third_party</url>
+		</repository>
 
 	</repositories>
 
@@ -48,26 +48,31 @@
 			<version>6.1.2</version>
 			<type>lutece-core</type>
 		</dependency>
-
+		<dependency>
+			<groupId>fr.paris.lutece.plugins</groupId>
+			<artifactId>library-lucene</artifactId>
+			<version>4.0.0-SNAPSHOT</version>
+		</dependency>
 		<!-- Jacob JNI COM Bridge -->
 		<dependency>
-  			<groupId>com.jacob</groupId>
-  			<artifactId>jacob</artifactId>
-  			<version>1.19</version>
+			<groupId>com.jacob</groupId>
+			<artifactId>jacob</artifactId>
+			<version>1.19</version>
 		</dependency>
+		
 	</dependencies>
 
 	<properties>
-      <componentName>ocra2ia</componentName>
-      <jiraProjectName>PLGOCRA2IA</jiraProjectName>
-      <jiraComponentId>15359</jiraComponentId>
-    </properties>
-    <scm>
-        <connection>scm:git:https://github.com/lutece-secteur-public/ocr-plugin-a2ia.git</connection>
-        <developerConnection>scm:git:https://github.com/lutece-secteur-public/ocr-plugin-a2ia.git</developerConnection>
-        <url>https://github.com/lutece-secteur-public/ocr-plugin-a2ia.git</url>
-      <tag>HEAD</tag>
-    </scm>
+		<componentName>ocra2ia</componentName>
+		<jiraProjectName>PLGOCRA2IA</jiraProjectName>
+		<jiraComponentId>15359</jiraComponentId>
+	</properties>
+	<scm>
+		<connection>scm:git:https://github.com/lutece-secteur-public/ocr-plugin-a2ia.git</connection>
+		<developerConnection>scm:git:https://github.com/lutece-secteur-public/ocr-plugin-a2ia.git</developerConnection>
+		<url>https://github.com/lutece-secteur-public/ocr-plugin-a2ia.git</url>
+		<tag>HEAD</tag>
+	</scm>
 
 
 
