@@ -33,6 +33,9 @@
  */
 package fr.paris.lutece.plugins.ocra2ia.service;
 
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Locale;
@@ -42,6 +45,9 @@ import javax.annotation.PostConstruct;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.rendering.PDFRenderer;
+import org.apache.pdfbox.tools.imageio.ImageIOUtil;
 
 import com.jacob.activeX.ActiveXComponent;
 import com.jacob.com.Dispatch;
@@ -69,7 +75,17 @@ public class OcrService
     /**
      * clsid active x A2IA.
      */
-    String           _strClsid;
+    private String   _strClsid;
+
+    /**
+     * image extension send to A2IA.
+     */
+    private String   _strA2iaImgExtension = null;
+
+    /**
+     * image content send to A2IA.
+     */
+    private byte[]   _byteImageContent    = null;
 
     /**
      * Load DLL Jacob and _dispatchA2iAObj.
@@ -97,10 +113,10 @@ public class OcrService
     /**
      * Perform OCR with A2iA.
      *
-     * @param byteImageContent
-     *            image to process
+     * @param bytefileContent
+     *            file to read
      * @param strFileExtension
-     *            image extension : values allowed : Tiff, Bmp, Jpeg
+     *            image extension
      * @param strDocumentType
      *            document type : values allowed : Rib, TaxAssessment,Identity
      * @return Map result of OCR
@@ -108,7 +124,7 @@ public class OcrService
      *             the OcrException
      *
      */
-    public Map<String, String> proceed( byte[] byteImageContent, String strFileExtension, String strDocumentType ) throws OcrException
+    public Map<String, String> proceed( byte[] bytefileContent, String strFileExtension, String strDocumentType ) throws OcrException
     {
         if ( StringUtils.isEmpty( _strClsid ) )
         {
@@ -116,19 +132,13 @@ public class OcrService
             throw new OcrException( OcrConstants.MESSAGE_INIT_ERROR );
         }
 
-        if ( ArrayUtils.isEmpty( byteImageContent ) || StringUtils.isEmpty( strFileExtension ) || StringUtils.isEmpty( strDocumentType ) )
+        if ( ArrayUtils.isEmpty( bytefileContent ) || StringUtils.isEmpty( strFileExtension ) || StringUtils.isEmpty( strDocumentType ) )
         {
             throw new OcrException( I18nService.getLocalizedString( OcrConstants.MESSAGE_PARAMETER_MANDATORY, Locale.getDefault( ) ) );
 
         }
 
-        if ( Arrays.asList( AppPropertiesService.getProperty( OcrConstants.PROPERTY_A2IA_EXTENSION_FILE_AUTHORIZED ).split( "," ) ).stream( )
-                .noneMatch( extension -> extension.equals( strFileExtension ) ) )
-        {
-            AppLogService.error( "Bad value for file extension." );
-            String[] messageArgs = { strFileExtension };
-            throw new OcrException( I18nService.getLocalizedString( OcrConstants.MESSAGE_FILE_EXTENSION_TYPE_ERROR, messageArgs, Locale.getDefault( ) ) );
-        }
+        setValueImageExtensionAndContent( strFileExtension, bytefileContent );
 
         Map<String, String> mapOcrServiceResults = new HashMap<>( );
 
@@ -137,7 +147,7 @@ public class OcrService
         try
         {
             variantChannelId = openChannelA2ia( );
-            variantRequestId = openRequestA2ia( byteImageContent, strFileExtension, strDocumentType, new Long( variantChannelId.toString( ) ) );
+            variantRequestId = openRequestA2ia( _byteImageContent, _strA2iaImgExtension, strDocumentType, new Long( variantChannelId.toString( ) ) );
             // run A2IA OCR engine to get result
             AppLogService.info( "Call a2ia engine begin" );
             Variant variantResultId = Dispatch.call( _dispatchA2iAObj, "ScrGetResult", variantChannelId, variantRequestId, 60000L );
@@ -263,6 +273,94 @@ public class OcrService
         }
 
         return strTblDocumentPath;
+    }
+
+    /**
+     * Set the value for _strA2iaImgExtension and _byteImageContent
+     *
+     * @param bytefileContent
+     *            file to read
+     * @param strFileExtension
+     *            image extension
+     * @throws OcrException
+     *             the OcrException
+     */
+    private void setValueImageExtensionAndContent( String strFileExtension, byte[] bytefileContent ) throws OcrException
+    {
+
+        // control extension
+        Arrays.asList( AppPropertiesService.getProperty( OcrConstants.PROPERTY_A2IA_EXTENSION_FILE_AUTHORIZED ).split( "," ) ).stream( ).forEach( extension ->
+        {
+            if ( extension.equalsIgnoreCase( strFileExtension ) && OcrConstants.EXTENSION_FILE_TIFF.equalsIgnoreCase( strFileExtension ) )
+            {
+                _byteImageContent = bytefileContent;
+                _strA2iaImgExtension = OcrConstants.EXTENSION_FILE_TIFF;
+            } else if ( extension.equalsIgnoreCase( strFileExtension )
+                    && ( OcrConstants.EXTENSION_FILE_JPEG.equalsIgnoreCase( strFileExtension ) || OcrConstants.EXTENSION_FILE_JPG.equalsIgnoreCase( strFileExtension ) ) )
+            {
+                _byteImageContent = bytefileContent;
+                _strA2iaImgExtension = OcrConstants.EXTENSION_FILE_JPEG;
+            } else if ( extension.equalsIgnoreCase( strFileExtension ) && OcrConstants.EXTENSION_FILE_BMP.equalsIgnoreCase( strFileExtension ) )
+            {
+                _byteImageContent = bytefileContent;
+                _strA2iaImgExtension = OcrConstants.EXTENSION_FILE_BMP;
+            } else if ( extension.equalsIgnoreCase( strFileExtension ) && OcrConstants.EXTENSION_FILE_PDF.equalsIgnoreCase( strFileExtension ) )
+            {
+
+                try
+                {
+                    _byteImageContent = transformPdfToImage( bytefileContent );
+                } catch ( OcrException | IOException e )
+                {
+                    AppLogService.error( e.getMessage( ) );
+                }
+
+                _strA2iaImgExtension = OcrConstants.EXTENSION_FILE_JPEG;
+            }
+        } );
+
+        if ( _strA2iaImgExtension == null )
+        {
+            AppLogService.error( "Bad value for file extension." );
+            String[] messageArgs = { strFileExtension };
+            throw new OcrException( I18nService.getLocalizedString( OcrConstants.MESSAGE_FILE_EXTENSION_TYPE_ERROR, messageArgs, Locale.getDefault( ) ) );
+        }
+    }
+
+    /**
+     * Convert pdf to Jpeg image.
+     *
+     * @param pdfByteContent
+     *            pdf byte content
+     * @return image byte content
+     * @throws OcrException
+     *             the OcrException
+     * @throws IOException
+     *             the IOException
+     */
+    private byte[] transformPdfToImage( byte[] pdfByteContent ) throws OcrException, IOException
+    {
+
+        AppLogService.info( "transformPdfToImage begin" );
+        final ByteArrayOutputStream byteArrayos = new ByteArrayOutputStream( );
+        byte[] byteImageByteContent = null;
+
+        final PDDocument document = PDDocument.load( pdfByteContent );
+        if ( document.getNumberOfPages( ) > 1 )
+        {
+            throw new OcrException( I18nService.getLocalizedString( OcrConstants.MESSAGE_PDF_NUMBER_PAGES_ERROR, Locale.getDefault( ) ) );
+        }
+
+        PDFRenderer pdfRenderer = new PDFRenderer( document );
+        BufferedImage bim = pdfRenderer.renderImageWithDPI( 0, 300 );
+        ImageIOUtil.writeImage( bim, OcrConstants.EXTENSION_FILE_JPG, byteArrayos );
+        byteImageByteContent = byteArrayos.toByteArray( );
+        document.close( );
+
+        AppLogService.info( "transformPdfToImage end" );
+
+        return byteImageByteContent;
+
     }
 
 }

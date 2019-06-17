@@ -244,7 +244,7 @@ public final class OcrResultUtils
     private static void getA2iaOutputResultMultiLines( A2iaOutput a2iaOutputMultiLines, Dispatch dispatchA2iaObject, Variant variantResultOcrId, Map<String, String> mapResult )
     {
         Variant variantLines = Dispatch.call( dispatchA2iaObject, OcrConstants.GET_PROPERTY_A2IA, variantResultOcrId.getInt( ), a2iaOutputMultiLines.getOutputZoneName( ) );
-        if ( ( variantLines != null ) && ( variantLines.getInt( ) > 0 ) )
+        if ( ( ( variantLines != null ) && !variantLines.isNull( ) ) && ( variantLines.getInt( ) > 0 ) )
         {
             StringBuilder sbAdresse = new StringBuilder( );
             for ( int i = 1; i <= variantLines.getInt( ); i++ )
