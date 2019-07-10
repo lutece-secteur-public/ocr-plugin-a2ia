@@ -82,6 +82,8 @@ public final class OcrConstants
     public static final String PROPERTY_IDENTITY_NATIONALITY               = "ocra2ia.result.identity.nationality";
     public static final String PROPERTY_IDENTITY_ID_NUMBER                 = "ocra2ia.result.identity.idNumber";
     public static final String PROPERTY_IDENTITY_ADDRESS                   = "ocra2ia.result.identity.address";
+    public static final String PROPERTY_PDF_IMAGE_QUALITY                  = "ocra2ia.pdf.image.quality";
+
 
     // constants
     public static final String JACOB_DLL64_FILE                            = "jacob-1.19-x64.dll";

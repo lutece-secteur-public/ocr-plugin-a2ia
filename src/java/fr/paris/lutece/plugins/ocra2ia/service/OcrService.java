@@ -146,8 +146,11 @@ public class OcrService
         Variant variantRequestId = null;
         try
         {
+            AppLogService.info( "openChannelA2ia begin" );
             variantChannelId = openChannelA2ia( );
+            AppLogService.info( "openChannelA2ia end" );
             variantRequestId = openRequestA2ia( _byteImageContent, _strA2iaImgExtension, strDocumentType, new Long( variantChannelId.toString( ) ) );
+            AppLogService.info( "openRequestA2ia end" );
             // run A2IA OCR engine to get result
             AppLogService.info( "Call a2ia engine begin" );
             Variant variantResultId = Dispatch.call( _dispatchA2iAObj, "ScrGetResult", variantChannelId, variantRequestId, 60000L );
@@ -352,7 +355,8 @@ public class OcrService
         }
 
         PDFRenderer pdfRenderer = new PDFRenderer( document );
-        BufferedImage bim = pdfRenderer.renderImageWithDPI( 0, 300 );
+        int ndpi = AppPropertiesService.getPropertyInt( OcrConstants.PROPERTY_PDF_IMAGE_QUALITY,150 );
+        BufferedImage bim = pdfRenderer.renderImageWithDPI( 0, ndpi );
         ImageIOUtil.writeImage( bim, OcrConstants.EXTENSION_FILE_JPG, byteArrayos );
         byteImageByteContent = byteArrayos.toByteArray( );
         document.close( );
