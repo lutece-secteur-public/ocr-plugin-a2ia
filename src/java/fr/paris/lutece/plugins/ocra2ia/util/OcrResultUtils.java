@@ -107,10 +107,10 @@ public final class OcrResultUtils
 
         List<A2iaOutput> listA2iaOutputRib = new ArrayList<>( );
         listA2iaOutputRib.add( new A2iaOutput( AppPropertiesService.getProperty( OcrConstants.PROPERTY_RIB_RESULT ), OcrConstants.OUTPUT_ZONE_RIB, Variant.VariantString ) );
-        listA2iaOutputRib.add( new A2iaOutput( AppPropertiesService.getProperty( OcrConstants.PROPERTY_RIB_RESULT_CODE_BANQUE ), OcrConstants.OUTPUT_ZONE_RIB_CODE_BANQUE, Variant.VariantInt ) );
-        listA2iaOutputRib.add( new A2iaOutput( AppPropertiesService.getProperty( OcrConstants.PROPERTY_RIB_RESULT_CODE_GUICHET ), OcrConstants.OUTPUT_ZONE_RIB_CODE_GUICHET, Variant.VariantInt ) );
-        listA2iaOutputRib.add( new A2iaOutput( AppPropertiesService.getProperty( OcrConstants.PROPERTY_RIB_RESULT_N_COMPTE ), OcrConstants.OUTPUT_ZONE_RIB_N_COMPTE, Variant.VariantInt ) );
-        listA2iaOutputRib.add( new A2iaOutput( AppPropertiesService.getProperty( OcrConstants.PROPERTY_RIB_RESULT_CLE ), OcrConstants.OUTPUT_ZONE_RIB_CLE, Variant.VariantInt ) );
+        listA2iaOutputRib.add( new A2iaOutput( AppPropertiesService.getProperty( OcrConstants.PROPERTY_RIB_RESULT_CODE_BANQUE ), OcrConstants.OUTPUT_ZONE_RIB_CODE_BANQUE, Variant.VariantString ) );
+        listA2iaOutputRib.add( new A2iaOutput( AppPropertiesService.getProperty( OcrConstants.PROPERTY_RIB_RESULT_CODE_GUICHET ), OcrConstants.OUTPUT_ZONE_RIB_CODE_GUICHET, Variant.VariantString ) );
+        listA2iaOutputRib.add( new A2iaOutput( AppPropertiesService.getProperty( OcrConstants.PROPERTY_RIB_RESULT_N_COMPTE ), OcrConstants.OUTPUT_ZONE_RIB_N_COMPTE, Variant.VariantString ) );
+        listA2iaOutputRib.add( new A2iaOutput( AppPropertiesService.getProperty( OcrConstants.PROPERTY_RIB_RESULT_CLE ), OcrConstants.OUTPUT_ZONE_RIB_CLE, Variant.VariantString ) );
         listA2iaOutputRib.add( new A2iaOutput( AppPropertiesService.getProperty( OcrConstants.PROPERTY_RIB_RESULT_IBAN ), OcrConstants.OUTPUT_ZONE_RIB_IBAN, Variant.VariantString ) );
         listA2iaOutputRib.add( new A2iaOutput( AppPropertiesService.getProperty( OcrConstants.PROPERTY_RIB_RESULT_BIC ), OcrConstants.OUTPUT_ZONE_RIB_BIC, Variant.VariantString ) );
 
