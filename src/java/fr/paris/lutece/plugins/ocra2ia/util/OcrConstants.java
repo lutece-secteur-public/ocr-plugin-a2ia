@@ -47,6 +47,7 @@ public final class OcrConstants
     public static final String MESSAGE_DOCUMENT_TYPE_ERROR                 = "ocra2ia.message.error.documentType";
     public static final String MESSAGE_FILE_EXTENSION_TYPE_ERROR           = "ocra2ia.message.error.fileextension";
     public static final String MESSAGE_PDF_NUMBER_PAGES_ERROR              = "ocra2ia.message.error.pdfnumberpages";
+    public static final String MESSAGE_TIMEOUT_TRANSFORM_IMAGE             = "ocra2ia.message.error.timeout.image";
 
     // properties
     public static final String PROPERTY_FOLDER_DLL_JACOB                   = "ocra2ia.jacob.dll";
@@ -83,6 +84,8 @@ public final class OcrConstants
     public static final String PROPERTY_IDENTITY_ID_NUMBER                 = "ocra2ia.result.identity.idNumber";
     public static final String PROPERTY_IDENTITY_ADDRESS                   = "ocra2ia.result.identity.address";
     public static final String PROPERTY_PDF_IMAGE_QUALITY                  = "ocra2ia.pdf.image.quality";
+    public static final String PROPERTY_NUMBER_OF_BYTE_BY_THREAD           = "ocra2ia.number.byte.single.thread";
+    public static final String PROPERTY_MAX_TIME_TO_PROCESS_IMAGE          = "ocra2ia.max.time.process.image";
 
 
     // constants
