@@ -40,6 +40,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
 
@@ -51,6 +54,7 @@ import org.apache.pdfbox.tools.imageio.ImageIOUtil;
 
 import com.jacob.activeX.ActiveXComponent;
 import com.jacob.com.Dispatch;
+import com.jacob.com.SafeArray;
 import com.jacob.com.Variant;
 
 import fr.paris.lutece.plugins.ocra2ia.exception.OcrException;
@@ -223,12 +227,6 @@ public class OcrService
     private Variant openRequestA2ia( byte[] byteImageContent, String strFileExtension, String strDocumentType, Long lChannelId ) throws OcrException
     {
 
-        Object[] imageObjects = new Object[byteImageContent.length];
-        for ( int i = 0; i < byteImageContent.length; i++ )
-        {
-            imageObjects[i] = byteImageContent[i];
-        }
-
         // Open Tbl doc
         Variant variantTblId = Dispatch.call( _dispatchA2iAObj, "ScrOpenDocumentTable", getTblDocumentPath( strDocumentType ) );
         Variant variantDefaultDocId = Dispatch.call( _dispatchA2iAObj, "ScrGetDefaultDocument", new Long( variantTblId.toString( ) ) );
@@ -238,12 +236,99 @@ public class OcrService
         Dispatch.call( _dispatchA2iAObj, OcrConstants.SET_PROPERTY_A2IA, variantDefaultDocId, "image.inputFormat", strFileExtension ); // format: Tiff, Bmp, or Jpeg
 
         // Then Set the buffer to the corresponding A2iA imageBuffer
-        Dispatch.call( _dispatchA2iAObj, "ScrSetBuffer", variantDefaultDocId, "image.imageSourceTypeInfo.CaseMemory.buffer", imageObjects ); // from memory
+        Dispatch.call( _dispatchA2iAObj, "ScrSetBuffer", variantDefaultDocId, "image.imageSourceTypeInfo.CaseMemory.buffer", trasformImagetoJacobOject( byteImageContent ) ); // from memory
 
         // Open Request
         Variant variantReqId = Dispatch.call( _dispatchA2iAObj, "ScrOpenRequest", lChannelId, new Long( variantDefaultDocId.toString( ) ) );
 
         return variantReqId;
+    }
+
+
+    /**
+     * Transform each byte of the image to Jacob Variant.
+     *
+     * @param byteImageContent
+     *            image to process
+     * @return image representation in variant.
+     * @throws OcrException
+     *            the OcrException
+     */
+    private Variant trasformImagetoJacobOject( byte[] byteImageContent ) throws OcrException
+    {
+        AppLogService.info( "trasformImagetoJacobOject Start - byteImageContent length : " + byteImageContent.length );
+        Variant variantImageObjects = new Variant( );
+
+        SafeArray safearray = new SafeArray( Variant.VariantVariant, byteImageContent.length );
+        // nNumberOfByte : number of byte processed by a single thread.
+        int nNumberOfByte = AppPropertiesService.getPropertyInt( OcrConstants.PROPERTY_NUMBER_OF_BYTE_BY_THREAD, byteImageContent.length );
+        // nNumberOfThread : number of thread to perform the image transformation.
+        int nNumberOfThread = ( ( nNumberOfByte > 1 ) && ( nNumberOfByte < byteImageContent.length ) ) ? byteImageContent.length / nNumberOfByte : 1;
+
+        Runnable[] tabRunnableTask = new Runnable[nNumberOfThread];
+        ExecutorService executorService = Executors.newFixedThreadPool( nNumberOfThread );
+        int nCurrentThreadPosition = 0;
+        while ( nCurrentThreadPosition < nNumberOfThread )
+        {
+            int nStart = nCurrentThreadPosition * nNumberOfByte;
+            int nEnd = ( nCurrentThreadPosition + 1 ) < nNumberOfThread ? (nCurrentThreadPosition + 1) * nNumberOfByte : byteImageContent.length;
+            tabRunnableTask[nCurrentThreadPosition] = createRunnableTask( byteImageContent, safearray, nStart, nEnd );
+            nCurrentThreadPosition++;
+        }
+
+        // process image transformation
+        for ( int i = 0; i < nNumberOfThread; i++ )
+        {
+            executorService.submit( tabRunnableTask[i] );
+        }
+        executorService.shutdown( );
+
+        boolean bExecutionComplet = false;
+        try
+        {
+            bExecutionComplet = executorService.awaitTermination( AppPropertiesService.getPropertyInt( OcrConstants.PROPERTY_MAX_TIME_TO_PROCESS_IMAGE, 5 ), TimeUnit.SECONDS );
+        } catch ( InterruptedException e )
+        {
+            AppLogService.error( e.getMessage( ), e );
+        } finally
+        {
+            if ( bExecutionComplet )
+            {
+                variantImageObjects.putSafeArray( safearray );
+                AppLogService.info( "trasformImagetoJacobOject Complet" );
+            } else
+            {
+                throw new OcrException( I18nService.getLocalizedString( OcrConstants.MESSAGE_TIMEOUT_TRANSFORM_IMAGE, Locale.getDefault( ) ) );
+            }
+        }
+
+        return variantImageObjects;
+    }
+
+    /**
+     * Create a single task to transform part of the image into variant. Each task is executed in a dedicated thread.
+     *
+     * @param byteImageContent
+     *            image to process
+     * @param safearray
+     *            jacob safe array
+     * @param nStart
+     *            first byte to process
+     * @param nEnd
+     *            last byte to process
+     * @return a runnable task.
+     */
+    private Runnable createRunnableTask( byte[] byteImageContent, SafeArray safearray, int nStart, int nEnd )
+    {
+        return ( ) ->
+        {
+            for ( int i =  nStart; i < nEnd; i++ )
+            {
+                Variant variantByteImage = new Variant( );
+                variantByteImage.putByte( byteImageContent[i] );
+                safearray.setVariant( i, variantByteImage );
+            }
+        };
     }
 
     /**
