@@ -83,6 +83,10 @@ public final class OcrConstants
     public static final String PROPERTY_IDENTITY_NATIONALITY               = "ocra2ia.result.identity.nationality";
     public static final String PROPERTY_IDENTITY_ID_NUMBER                 = "ocra2ia.result.identity.idNumber";
     public static final String PROPERTY_IDENTITY_ADDRESS                   = "ocra2ia.result.identity.address";
+    public static final String PROPERTY_ADDRESS_NAME                       = "ocra2ia.result.address.name";
+    public static final String PROPERTY_ADDRESS_DESTINATION                = "ocra2ia.result.address.destination";
+    public static final String PROPERTY_ADDRESS_PHONE                      = "ocra2ia.result.address.phone";
+    public static final String PROPERTY_ADDRESS_CITYZIP                     = "ocra2ia.result.address.cityzip";
     public static final String PROPERTY_PDF_IMAGE_QUALITY                  = "ocra2ia.pdf.image.quality";
     public static final String PROPERTY_NUMBER_OF_BYTE_BY_THREAD           = "ocra2ia.number.byte.single.thread";
     public static final String PROPERTY_MAX_TIME_TO_PROCESS_IMAGE          = "ocra2ia.max.time.process.image";
@@ -124,6 +128,12 @@ public final class OcrConstants
     public static final String OUTPUT_ZONE_IDENTITY_NATIONALITY            = "documentTypeInfo.CaseSpecific.specificOutput.subTypeInfo.CaseIdentityDocument.identity.nationality.reco";
     public static final String OUTPUT_ZONE_IDENTITY_ID_NUMBER              = "documentTypeInfo.CaseSpecific.specificOutput.subTypeInfo.CaseIdentityDocument.identity.idNumber.reco";
     public static final String OUTPUT_ZONE_IDENTITY_ADDRESS                = "documentTypeInfo.CaseSpecific.specificOutput.subTypeInfo.CaseIdentityDocument.identity.address";
+
+    // constant address block
+    public static final String OUTPUT_ZONE_ADDRESS_NAME                    = "Name";
+    public static final String OUTPUT_ZONE_ADDRESS_DESTINATION             = "Destination";
+    public static final String OUTPUT_ZONE_ADDRESS_PHONE_NUMBER            = "PhoneNum";
+    public static final String OUTPUT_ZONE_ADDRESS_CITY_ZIP                = "CityZip";
 
     /**
      * Default private constructor. Do not call

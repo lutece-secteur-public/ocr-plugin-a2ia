@@ -251,7 +251,26 @@ public final class OcrResultUtils
             {
                 Variant variantLine = Dispatch.call( dispatchA2iaObject, OcrConstants.GET_PROPERTY_A2IA, variantResultOcrId.getInt( ),
                         a2iaOutputMultiLines.getOutputZoneName( ) + "[" + i + "].wreco" );
-                sbAdresse.append( variantLine.toString( ) ).append( " " );
+                if ( variantLine != null )
+                {
+                    sbAdresse.append( variantLine.toString( ) ).append( " " );
+                    Variant variantType = Dispatch.call( dispatchA2iaObject, OcrConstants.GET_PROPERTY_A2IA, variantResultOcrId.getInt( ),
+                            a2iaOutputMultiLines.getOutputZoneName( ) + "[" + i + "].type" );
+                    if ( OcrConstants.OUTPUT_ZONE_ADDRESS_NAME.equalsIgnoreCase( variantType.toString( ) ) )
+                    {
+                        mapResult.put( AppPropertiesService.getProperty( OcrConstants.PROPERTY_ADDRESS_NAME ), variantLine.toString( ) );
+                    } else if ( OcrConstants.OUTPUT_ZONE_ADDRESS_DESTINATION.equalsIgnoreCase( variantType.toString( ) ) )
+                    {
+                        mapResult.put(AppPropertiesService.getProperty( OcrConstants.PROPERTY_ADDRESS_DESTINATION ), variantLine.toString( ) );
+                    } else if ( OcrConstants.OUTPUT_ZONE_ADDRESS_PHONE_NUMBER.equalsIgnoreCase( variantType.toString( ) ) )
+                    {
+                        mapResult.put(AppPropertiesService.getProperty( OcrConstants.PROPERTY_ADDRESS_PHONE ), variantLine.toString( ) );
+                    } else if ( OcrConstants.OUTPUT_ZONE_ADDRESS_CITY_ZIP.equalsIgnoreCase( variantType.toString( ) ) )
+                    {
+                        mapResult.put( AppPropertiesService.getProperty( OcrConstants.PROPERTY_ADDRESS_CITYZIP ), variantLine.toString( ) );
+                    }
+                }
+
             }
             mapResult.put( a2iaOutputMultiLines.getKey( ), sbAdresse.toString( ) );
         }
