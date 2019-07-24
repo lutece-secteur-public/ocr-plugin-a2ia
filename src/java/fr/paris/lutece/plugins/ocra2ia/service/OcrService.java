@@ -72,13 +72,24 @@ import fr.paris.lutece.portal.service.util.AppPropertiesService;
 public class OcrService
 {
 
-
+    /**
+     * Jacob Object to wrap A2ia component.
+     */
+    private Dispatch _dispatchA2iAObj;
     /**
      * clsid active x A2IA.
      */
     private String   _strClsid;
 
+    /**
+     * image extension send to A2IA.
+     */
+    private String   _strA2iaImgExtension = null;
 
+    /**
+     * image content send to A2IA.
+     */
+    private byte[]   _byteImageContent    = null;
 
     /**
      * Load DLL Jacob and _dispatchA2iAObj.
@@ -119,16 +130,6 @@ public class OcrService
      */
     public Map<String, String> proceed( byte[] bytefileContent, String strFileExtension, String strDocumentType ) throws OcrException
     {
-    	
- 
-        
-        /**
-         * Jacob Object to wrap A2ia component.
-         */
-    	// Init COM A2IA COM Object
-        ActiveXComponent comp = new ActiveXComponent( _strClsid );
-        Dispatch _dispatchA2iAObj = comp.getObject( );
-    	
         if ( StringUtils.isEmpty( _strClsid ) )
         {
             AppLogService.error( "Bad initialisation of OCR Service." );
@@ -141,9 +142,7 @@ public class OcrService
 
         }
 
-        ImageBean result = setValueImageExtensionAndContent( strFileExtension, bytefileContent );
-        String   _strA2iaImgExtension = result.getExtension();
-        byte[]   _byteImageContent    = result.getContent();
+        setValueImageExtensionAndContent( strFileExtension, bytefileContent );
 
         Map<String, String> mapOcrServiceResults = new HashMap<>( );
 
@@ -152,9 +151,9 @@ public class OcrService
         try
         {
             AppLogService.info( "openChannelA2ia begin" );
-            variantChannelId = openChannelA2ia(_dispatchA2iAObj );
+            variantChannelId = openChannelA2ia( );
             AppLogService.info( "openChannelA2ia end" );
-            variantRequestId = openRequestA2ia( _byteImageContent, _strA2iaImgExtension, strDocumentType, new Long( variantChannelId.toString( ) ),_dispatchA2iAObj );
+            variantRequestId = openRequestA2ia( _byteImageContent, _strA2iaImgExtension, strDocumentType, new Long( variantChannelId.toString( ) ) );
             AppLogService.info( "openRequestA2ia end" );
             // run A2IA OCR engine to get result
             AppLogService.info( "Call a2ia engine begin" );
@@ -184,13 +183,15 @@ public class OcrService
 
     /**
      * Open a channel communication with A2ia.
-     * @param _dispatchA2iAObj 
      *
      * @return id of the channel
      */
-    private Variant openChannelA2ia(Dispatch _dispatchA2iAObj)
+    private Variant openChannelA2ia( )
     {
 
+        // Init COM A2IA COM Object
+        ActiveXComponent comp = new ActiveXComponent( _strClsid );
+        _dispatchA2iAObj = comp.getObject( );
         Dispatch.call( _dispatchA2iAObj, "ScrInit", "" );
 
         // Init Param
@@ -219,12 +220,11 @@ public class OcrService
      *            document type
      * @param lChannelId
      *            id of the channel communication
-     * @param _dispatchA2iAObj 
      * @return id of the request
      * @throws OcrException
      *             the OcrException
      */
-    private Variant openRequestA2ia( byte[] byteImageContent, String strFileExtension, String strDocumentType, Long lChannelId, Dispatch _dispatchA2iAObj ) throws OcrException
+    private Variant openRequestA2ia( byte[] byteImageContent, String strFileExtension, String strDocumentType, Long lChannelId ) throws OcrException
     {
 
         // Open Tbl doc
@@ -373,52 +373,45 @@ public class OcrService
      * @throws OcrException
      *             the OcrException
      */
-    private ImageBean setValueImageExtensionAndContent( String strFileExtension, byte[] bytefileContent ) throws OcrException
+    private void setValueImageExtensionAndContent( String strFileExtension, byte[] bytefileContent ) throws OcrException
     {
-    	ImageBean result = new ImageBean();
 
-		// control extension
-        Arrays.asList( AppPropertiesService.getProperty( OcrConstants.PROPERTY_A2IA_EXTENSION_FILE_AUTHORIZED ).split( "," ) )
-        .stream( )
-        .forEach( extension ->
+        // control extension
+        Arrays.asList( AppPropertiesService.getProperty( OcrConstants.PROPERTY_A2IA_EXTENSION_FILE_AUTHORIZED ).split( "," ) ).stream( ).forEach( extension ->
         {
-			if ( extension.equalsIgnoreCase( strFileExtension ) && OcrConstants.EXTENSION_FILE_TIFF.equalsIgnoreCase( strFileExtension ) )
+            if ( extension.equalsIgnoreCase( strFileExtension ) && OcrConstants.EXTENSION_FILE_TIFF.equalsIgnoreCase( strFileExtension ) )
             {
-                result.setContent(bytefileContent);
-                result.setExtension(OcrConstants.EXTENSION_FILE_TIFF);
+                _byteImageContent = bytefileContent;
+                _strA2iaImgExtension = OcrConstants.EXTENSION_FILE_TIFF;
             } else if ( extension.equalsIgnoreCase( strFileExtension )
                     && ( OcrConstants.EXTENSION_FILE_JPEG.equalsIgnoreCase( strFileExtension ) || OcrConstants.EXTENSION_FILE_JPG.equalsIgnoreCase( strFileExtension ) ) )
             {
-            	result.setContent(bytefileContent);
-            	result.setExtension(OcrConstants.EXTENSION_FILE_JPEG);
+                _byteImageContent = bytefileContent;
+                _strA2iaImgExtension = OcrConstants.EXTENSION_FILE_JPEG;
             } else if ( extension.equalsIgnoreCase( strFileExtension ) && OcrConstants.EXTENSION_FILE_BMP.equalsIgnoreCase( strFileExtension ) )
             {
-            	result.setContent(bytefileContent);
-            	result.setExtension(OcrConstants.EXTENSION_FILE_BMP);
+                _byteImageContent = bytefileContent;
+                _strA2iaImgExtension = OcrConstants.EXTENSION_FILE_BMP;
             } else if ( extension.equalsIgnoreCase( strFileExtension ) && OcrConstants.EXTENSION_FILE_PDF.equalsIgnoreCase( strFileExtension ) )
             {
 
                 try
                 {
-                	result.setContent(transformPdfToImage( bytefileContent ));
+                    _byteImageContent = transformPdfToImage( bytefileContent );
                 } catch ( OcrException | IOException e )
                 {
                     AppLogService.error( e.getMessage( ) );
                 }
 
-                result.setExtension(OcrConstants.EXTENSION_FILE_JPEG);
+                _strA2iaImgExtension = OcrConstants.EXTENSION_FILE_JPEG;
             }
-        } 
-        
-        );
+        } );
 
-        if ( result.getExtension()==null )
+        if ( _strA2iaImgExtension == null )
         {
             AppLogService.error( "Bad value for file extension." );
             String[] messageArgs = { strFileExtension };
             throw new OcrException( I18nService.getLocalizedString( OcrConstants.MESSAGE_FILE_EXTENSION_TYPE_ERROR, messageArgs, Locale.getDefault( ) ) );
-        } else {
-        	return result;
         }
     }
 
@@ -458,26 +451,5 @@ public class OcrService
         return byteImageByteContent;
 
     }
-    
-    
-    private class ImageBean {
-    	String _strExtension;
-    	byte[] _byteContent;
-		public String getExtension() {
-			return _strExtension;
-		}
-		public void setExtension(String _strExtension) {
-			this._strExtension = _strExtension;
-		}
-		public byte[] getContent() {
-			return _byteContent;
-		}
-		public void setContent(byte[] _byteContent) {
-			this._byteContent = _byteContent;
-		}
-    	
-    	
-    }
-    
 
 }
