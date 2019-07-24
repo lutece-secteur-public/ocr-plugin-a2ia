@@ -117,8 +117,10 @@ public class OcrService
      *             the OcrException
      *
      */
-    public synchronized Map<String, String> proceed( byte[] bytefileContent, String strFileExtension, String strDocumentType ) throws OcrException
+    public Map<String, String> proceed( byte[] bytefileContent, String strFileExtension, String strDocumentType ) throws OcrException
     {
+    	
+ 
         
         /**
          * Jacob Object to wrap A2ia component.
