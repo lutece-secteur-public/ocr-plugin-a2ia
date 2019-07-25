@@ -49,6 +49,7 @@ import javax.annotation.PostConstruct;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.rendering.ImageType;
 import org.apache.pdfbox.rendering.PDFRenderer;
 import org.apache.pdfbox.tools.imageio.ImageIOUtil;
 
@@ -392,19 +393,25 @@ public class OcrService
             {
                 _byteImageContent = bytefileContent;
                 _strA2iaImgExtension = OcrConstants.EXTENSION_FILE_BMP;
+            } else if ( extension.equalsIgnoreCase( strFileExtension ) && OcrConstants.EXTENSION_FILE_PNG.equalsIgnoreCase( strFileExtension ) )
+            {
+                _byteImageContent = bytefileContent;
+                _strA2iaImgExtension = OcrConstants.EXTENSION_FILE_PNG;
             } else if ( extension.equalsIgnoreCase( strFileExtension ) && OcrConstants.EXTENSION_FILE_PDF.equalsIgnoreCase( strFileExtension ) )
             {
-
+                String strImageFormat = OcrConstants.EXTENSION_FILE_PNG.equalsIgnoreCase( AppPropertiesService.getProperty( OcrConstants.PROPERTY_PDF_IMAGE_FORMAT ) ) ? OcrConstants.EXTENSION_FILE_PNG
+                        : OcrConstants.EXTENSION_FILE_JPEG;
                 try
                 {
-                    _byteImageContent = transformPdfToImage( bytefileContent );
+                    _byteImageContent = transformPdfToImage( bytefileContent, strImageFormat );
                 } catch ( OcrException | IOException e )
                 {
                     AppLogService.error( e.getMessage( ) );
                 }
 
-                _strA2iaImgExtension = OcrConstants.EXTENSION_FILE_JPEG;
+                _strA2iaImgExtension = strImageFormat;
             }
+
         } );
 
         if ( _strA2iaImgExtension == null )
@@ -416,20 +423,43 @@ public class OcrService
     }
 
     /**
-     * Convert pdf to Jpeg image.
+     * Convert pdf to image.
      *
      * @param pdfByteContent
      *            pdf byte content
+     * @param strImageFormat
+     *            image format
      * @return image byte content
      * @throws OcrException
      *             the OcrException
      * @throws IOException
      *             the IOException
      */
-    private byte[] transformPdfToImage( byte[] pdfByteContent ) throws OcrException, IOException
+    private byte[] transformPdfToImage( byte[] pdfByteContent, String strImageFormat ) throws OcrException, IOException
     {
 
         AppLogService.info( "transformPdfToImage begin" );
+
+        // Options for converting pdf in image
+        int ndpi = AppPropertiesService.getPropertyInt( OcrConstants.PROPERTY_PDF_IMAGE_QUALITY, 150 );
+        float fCompressionLevel = 1;
+        ImageType imageType = ImageType.RGB;
+
+        String strImageType = AppPropertiesService.getProperty( OcrConstants.PROPERTY_PDF_IMAGE_TYPE, OcrConstants.IMAGE_TYPE_RGB );
+        imageType = OcrConstants.IMAGE_TYPE_BINARY.equalsIgnoreCase( strImageType ) ? ImageType.BINARY : ImageType.RGB;
+
+        if ( OcrConstants.EXTENSION_FILE_JPEG.equalsIgnoreCase( strImageFormat ) )
+        {
+            try
+            {
+                fCompressionLevel = Float.valueOf( AppPropertiesService.getProperty( OcrConstants.PROPERTY_PDF_IMAGE_COMPRESSION_LEVEL ) );
+                fCompressionLevel = ( ( fCompressionLevel <= 0 ) || ( fCompressionLevel > 1 ) ) ? 1 : fCompressionLevel;
+            } catch ( NumberFormatException e )
+            {
+                AppLogService.error( "Bad value for properties ocra2ia.pdf.image.compression.level.", e );
+            }
+        }
+
         final ByteArrayOutputStream byteArrayos = new ByteArrayOutputStream( );
         byte[] byteImageByteContent = null;
 
@@ -440,9 +470,8 @@ public class OcrService
         }
 
         PDFRenderer pdfRenderer = new PDFRenderer( document );
-        int ndpi = AppPropertiesService.getPropertyInt( OcrConstants.PROPERTY_PDF_IMAGE_QUALITY,150 );
-        BufferedImage bim = pdfRenderer.renderImageWithDPI( 0, ndpi );
-        ImageIOUtil.writeImage( bim, OcrConstants.EXTENSION_FILE_JPG, byteArrayos );
+        BufferedImage bim = pdfRenderer.renderImageWithDPI( 0, ndpi, imageType );
+        ImageIOUtil.writeImage( bim, strImageFormat, byteArrayos, 72, fCompressionLevel );
         byteImageByteContent = byteArrayos.toByteArray( );
         document.close( );
 
@@ -451,5 +480,6 @@ public class OcrService
         return byteImageByteContent;
 
     }
+
 
 }
