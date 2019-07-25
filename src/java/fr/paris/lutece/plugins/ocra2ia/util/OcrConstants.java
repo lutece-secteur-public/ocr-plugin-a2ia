@@ -86,10 +86,13 @@ public final class OcrConstants
     public static final String PROPERTY_ADDRESS_NAME                       = "ocra2ia.result.address.name";
     public static final String PROPERTY_ADDRESS_DESTINATION                = "ocra2ia.result.address.destination";
     public static final String PROPERTY_ADDRESS_PHONE                      = "ocra2ia.result.address.phone";
-    public static final String PROPERTY_ADDRESS_CITYZIP                     = "ocra2ia.result.address.cityzip";
+    public static final String PROPERTY_ADDRESS_CITYZIP                    = "ocra2ia.result.address.cityzip";
     public static final String PROPERTY_PDF_IMAGE_QUALITY                  = "ocra2ia.pdf.image.quality";
     public static final String PROPERTY_NUMBER_OF_BYTE_BY_THREAD           = "ocra2ia.number.byte.single.thread";
     public static final String PROPERTY_MAX_TIME_TO_PROCESS_IMAGE          = "ocra2ia.max.time.process.image";
+    public static final String PROPERTY_PDF_IMAGE_TYPE                     = "ocra2ia.pdf.image.type";
+    public static final String PROPERTY_PDF_IMAGE_COMPRESSION_LEVEL        = "ocra2ia.pdf.image.compression.level";
+    public static final String PROPERTY_PDF_IMAGE_FORMAT                   = "ocra2ia.pdf.image.format";
 
 
     // constants
@@ -100,7 +103,10 @@ public final class OcrConstants
     public static final String EXTENSION_FILE_BMP                          = "Bmp";
     public static final String EXTENSION_FILE_JPEG                         = "Jpeg";
     public static final String EXTENSION_FILE_JPG                          = "Jpg";
+    public static final String EXTENSION_FILE_PNG                          = "Png";
     public static final String EXTENSION_FILE_PDF                          = "Pdf";
+    public static final String IMAGE_TYPE_RGB                              = "rgb";
+    public static final String IMAGE_TYPE_BINARY                           = "binary";
 
     // constants rib
     public static final String OUTPUT_ZONE_RIB                             = "documentTypeInfo.CaseSpecific.specificOutput.subTypeInfo.CaseRIB.RIB.result.reco";
