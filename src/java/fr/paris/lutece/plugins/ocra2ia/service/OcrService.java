@@ -49,6 +49,7 @@ import javax.annotation.PostConstruct;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.rendering.ImageType;
 import org.apache.pdfbox.rendering.PDFRenderer;
 import org.apache.pdfbox.tools.imageio.ImageIOUtil;
 
@@ -121,10 +122,10 @@ public class OcrService
         /**
          * Jacob Object to wrap A2ia component.
          */
-    	// Init COM A2IA COM Object
+        // Init COM A2IA COM Object
         ActiveXComponent comp = new ActiveXComponent( _strClsid );
         Dispatch _dispatchA2iAObj = comp.getObject( );
-    	
+
         if ( StringUtils.isEmpty( _strClsid ) )
         {
             AppLogService.error( "Bad initialisation of OCR Service." );
@@ -180,7 +181,7 @@ public class OcrService
 
     /**
      * Open a channel communication with A2ia.
-     * @param _dispatchA2iAObj 
+     * @param _dispatchA2iAObj
      *
      * @return id of the channel
      */
@@ -215,7 +216,7 @@ public class OcrService
      *            document type
      * @param lChannelId
      *            id of the channel communication
-     * @param _dispatchA2iAObj 
+     * @param _dispatchA2iAObj
      * @return id of the request
      * @throws OcrException
      *             the OcrException
@@ -371,42 +372,48 @@ public class OcrService
      */
     private ImageBean setValueImageExtensionAndContent( String strFileExtension, byte[] bytefileContent ) throws OcrException
     {
-    	ImageBean result = new ImageBean();
+        ImageBean result = new ImageBean();
 
-		// control extension
+        // control extension
         Arrays.asList( AppPropertiesService.getProperty( OcrConstants.PROPERTY_A2IA_EXTENSION_FILE_AUTHORIZED ).split( "," ) )
         .stream( )
         .forEach( extension ->
         {
-			if ( extension.equalsIgnoreCase( strFileExtension ) && OcrConstants.EXTENSION_FILE_TIFF.equalsIgnoreCase( strFileExtension ) )
+            if ( extension.equalsIgnoreCase( strFileExtension ) && OcrConstants.EXTENSION_FILE_TIFF.equalsIgnoreCase( strFileExtension ) )
             {
                 result.setContent(bytefileContent);
                 result.setExtension(OcrConstants.EXTENSION_FILE_TIFF);
             } else if ( extension.equalsIgnoreCase( strFileExtension )
                     && ( OcrConstants.EXTENSION_FILE_JPEG.equalsIgnoreCase( strFileExtension ) || OcrConstants.EXTENSION_FILE_JPG.equalsIgnoreCase( strFileExtension ) ) )
             {
-            	result.setContent(bytefileContent);
-            	result.setExtension(OcrConstants.EXTENSION_FILE_JPEG);
+                result.setContent(bytefileContent);
+                result.setExtension(OcrConstants.EXTENSION_FILE_JPEG);
             } else if ( extension.equalsIgnoreCase( strFileExtension ) && OcrConstants.EXTENSION_FILE_BMP.equalsIgnoreCase( strFileExtension ) )
             {
-            	result.setContent(bytefileContent);
-            	result.setExtension(OcrConstants.EXTENSION_FILE_BMP);
+                result.setContent(bytefileContent);
+                result.setExtension(OcrConstants.EXTENSION_FILE_BMP);
+            } else if ( extension.equalsIgnoreCase( strFileExtension ) && OcrConstants.EXTENSION_FILE_PNG.equalsIgnoreCase( strFileExtension ) )
+            {
+                result.setContent(bytefileContent);
+                result.setExtension(OcrConstants.EXTENSION_FILE_PNG);
             } else if ( extension.equalsIgnoreCase( strFileExtension ) && OcrConstants.EXTENSION_FILE_PDF.equalsIgnoreCase( strFileExtension ) )
             {
-
+                String strImageFormat = OcrConstants.EXTENSION_FILE_PNG.equalsIgnoreCase( AppPropertiesService.getProperty( OcrConstants.PROPERTY_PDF_IMAGE_FORMAT ) ) ? OcrConstants.EXTENSION_FILE_PNG
+                        : OcrConstants.EXTENSION_FILE_JPEG;
                 try
                 {
-                	result.setContent(transformPdfToImage( bytefileContent ));
+                    result.setContent(transformPdfToImage( bytefileContent, strImageFormat ));
                 } catch ( OcrException | IOException e )
                 {
                     AppLogService.error( e.getMessage( ) );
                 }
 
-                result.setExtension(OcrConstants.EXTENSION_FILE_JPEG);
+                result.setExtension(strImageFormat);
             }
-        } 
-        
-        );
+
+        }
+
+                );
 
         if ( result.getExtension()==null )
         {
@@ -414,25 +421,48 @@ public class OcrService
             String[] messageArgs = { strFileExtension };
             throw new OcrException( I18nService.getLocalizedString( OcrConstants.MESSAGE_FILE_EXTENSION_TYPE_ERROR, messageArgs, Locale.getDefault( ) ) );
         } else {
-        	return result;
+            return result;
         }
     }
 
     /**
-     * Convert pdf to Jpeg image.
+     * Convert pdf to image.
      *
      * @param pdfByteContent
      *            pdf byte content
+     * @param strImageFormat
+     *            image format
      * @return image byte content
      * @throws OcrException
      *             the OcrException
      * @throws IOException
      *             the IOException
      */
-    private byte[] transformPdfToImage( byte[] pdfByteContent ) throws OcrException, IOException
+    private byte[] transformPdfToImage( byte[] pdfByteContent, String strImageFormat ) throws OcrException, IOException
     {
 
         AppLogService.info( "transformPdfToImage begin" );
+
+        // Options for converting pdf in image
+        int ndpi = AppPropertiesService.getPropertyInt( OcrConstants.PROPERTY_PDF_IMAGE_QUALITY, 150 );
+        float fCompressionLevel = 1;
+        ImageType imageType = ImageType.RGB;
+
+        String strImageType = AppPropertiesService.getProperty( OcrConstants.PROPERTY_PDF_IMAGE_TYPE, OcrConstants.IMAGE_TYPE_RGB );
+        imageType = OcrConstants.IMAGE_TYPE_BINARY.equalsIgnoreCase( strImageType ) ? ImageType.BINARY : ImageType.RGB;
+
+        if ( OcrConstants.EXTENSION_FILE_JPEG.equalsIgnoreCase( strImageFormat ) )
+        {
+            try
+            {
+                fCompressionLevel = Float.valueOf( AppPropertiesService.getProperty( OcrConstants.PROPERTY_PDF_IMAGE_COMPRESSION_LEVEL ) );
+                fCompressionLevel = ( ( fCompressionLevel <= 0 ) || ( fCompressionLevel > 1 ) ) ? 1 : fCompressionLevel;
+            } catch ( NumberFormatException e )
+            {
+                AppLogService.error( "Bad value for properties ocra2ia.pdf.image.compression.level.", e );
+            }
+        }
+
         final ByteArrayOutputStream byteArrayos = new ByteArrayOutputStream( );
         byte[] byteImageByteContent = null;
 
@@ -443,9 +473,8 @@ public class OcrService
         }
 
         PDFRenderer pdfRenderer = new PDFRenderer( document );
-        int ndpi = AppPropertiesService.getPropertyInt( OcrConstants.PROPERTY_PDF_IMAGE_QUALITY,150 );
-        BufferedImage bim = pdfRenderer.renderImageWithDPI( 0, ndpi );
-        ImageIOUtil.writeImage( bim, OcrConstants.EXTENSION_FILE_JPG, byteArrayos );
+        BufferedImage bim = pdfRenderer.renderImageWithDPI( 0, ndpi, imageType );
+        ImageIOUtil.writeImage( bim, strImageFormat, byteArrayos, 72, fCompressionLevel );
         byteImageByteContent = byteArrayos.toByteArray( );
         document.close( );
 
@@ -454,29 +483,30 @@ public class OcrService
         return byteImageByteContent;
 
     }
-    
-	/**
-	 * Image bean class
-	 */
-	private class ImageBean {
-		String _strExtension;
-		byte[] _byteContent;
 
-		public String getExtension() {
-			return _strExtension;
-		}
 
-		public void setExtension(String _strExtension) {
-			this._strExtension = _strExtension;
-		}
+    /**
+     * Image bean class
+     */
+    private class ImageBean {
+        String _strExtension;
+        byte[] _byteContent;
 
-		public byte[] getContent() {
-			return _byteContent;
-		}
+        public String getExtension() {
+            return _strExtension;
+        }
 
-		public void setContent(byte[] _byteContent) {
-			this._byteContent = _byteContent;
-		}
-	}
+        public void setExtension(String _strExtension) {
+            this._strExtension = _strExtension;
+        }
+
+        public byte[] getContent() {
+            return _byteContent;
+        }
+
+        public void setContent(byte[] _byteContent) {
+            this._byteContent = _byteContent;
+        }
+    }
 
 }
