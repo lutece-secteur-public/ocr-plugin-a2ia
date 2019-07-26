@@ -93,6 +93,7 @@ public final class OcrConstants
     public static final String PROPERTY_PDF_IMAGE_TYPE                     = "ocra2ia.pdf.image.type";
     public static final String PROPERTY_PDF_IMAGE_COMPRESSION_LEVEL        = "ocra2ia.pdf.image.compression.level";
     public static final String PROPERTY_PDF_IMAGE_FORMAT                   = "ocra2ia.pdf.image.format";
+    public static final String PROPERTY_PDF_IMAGE_RETRY                    = "ocra2ia.pdf.image.retry";
 
 
     // constants

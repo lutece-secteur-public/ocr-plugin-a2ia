@@ -139,24 +139,65 @@ public class OcrService
         }
 
         ImageBean result = setValueImageExtensionAndContent( strFileExtension, bytefileContent );
-        String   _strA2iaImgExtension = result.getExtension();
-        byte[]   _byteImageContent    = result.getContent();
+        String _strA2iaImgExtension = result.getExtension( );
+        byte[] _byteImageContent = result.getContent( );
 
-        Map<String, String> mapOcrServiceResults = new HashMap<>( );
+
+        Map<String, String> mapOcrServiceResults = performOcr( _dispatchA2iAObj, _byteImageContent, _strA2iaImgExtension, strDocumentType );
+
+        mapOcrServiceResults.values( ).removeIf( StringUtils::isBlank );
+        boolean bRetry = AppPropertiesService.getPropertyBoolean( OcrConstants.PROPERTY_PDF_IMAGE_RETRY, false ) && mapOcrServiceResults.isEmpty( )
+                && OcrConstants.EXTENSION_FILE_PDF.equalsIgnoreCase( strFileExtension );
+        if ( bRetry )
+        {
+            AppLogService.info( "the retry mechanism will be launched" );
+            try
+            {
+                _byteImageContent = transformPdfToImage( bytefileContent, OcrConstants.EXTENSION_FILE_JPEG, true );
+                mapOcrServiceResults = performOcr( _dispatchA2iAObj, _byteImageContent, OcrConstants.EXTENSION_FILE_JPEG, strDocumentType );
+            } catch ( IOException e )
+            {
+                AppLogService.error( e.getMessage( ) );
+            }
+
+        }
+
+        return mapOcrServiceResults;
+    }
+
+    /**
+     * Launch OCR and get results.
+     *
+     * @param dispatchA2iAObj
+     *            dispatchA2iAObj
+     * @param byteImageContent
+     *            image to process
+     * @param strA2iaImgExtension
+     *            image extension
+     * @param strDocumentType
+     *            document type
+     * @return Map result of OCR
+     * @throws OcrException
+     *            the OcrException
+     */
+    private Map<String, String> performOcr(Dispatch dispatchA2iAObj, byte[]   byteImageContent, String   strA2iaImgExtension, String strDocumentType ) throws OcrException {
 
         Variant variantChannelId = null;
         Variant variantRequestId = null;
+
+        Map<String, String> mapOcrServiceResults = new HashMap<>( );
+
         try
         {
             AppLogService.info( "openChannelA2ia begin" );
-            variantChannelId = openChannelA2ia(_dispatchA2iAObj );
+            variantChannelId = openChannelA2ia(dispatchA2iAObj );
             AppLogService.info( "openChannelA2ia end" );
-            variantRequestId = openRequestA2ia( _byteImageContent, _strA2iaImgExtension, strDocumentType, new Long( variantChannelId.toString( ) ),_dispatchA2iAObj );
+            variantRequestId = openRequestA2ia( byteImageContent, strA2iaImgExtension, strDocumentType, new Long( variantChannelId.toString( ) ),dispatchA2iAObj );
             AppLogService.info( "openRequestA2ia end" );
             // run A2IA OCR engine to get result
             AppLogService.info( "Call a2ia engine begin" );
-            Variant variantResultId = Dispatch.call( _dispatchA2iAObj, "ScrGetResult", variantChannelId, variantRequestId, 60000L );
-            mapOcrServiceResults = OcrResultUtils.getOcrResults( strDocumentType, _dispatchA2iAObj, variantResultId );
+            Variant variantResultId = Dispatch.call( dispatchA2iAObj, "ScrGetResult", variantChannelId, variantRequestId, 60000L );
+            mapOcrServiceResults = OcrResultUtils.getOcrResults( strDocumentType, dispatchA2iAObj, variantResultId );
             AppLogService.info( "Call a2ia engine end" );
 
         } catch ( Exception e )
@@ -167,16 +208,17 @@ public class OcrService
         {
             if ( variantRequestId != null )
             {
-                Dispatch.call( _dispatchA2iAObj, "ScrCloseRequest", new Long( variantRequestId.toString( ) ) );
+                Dispatch.call( dispatchA2iAObj, "ScrCloseRequest", new Long( variantRequestId.toString( ) ) );
             }
             if ( variantChannelId != null )
             {
-                Dispatch.call( _dispatchA2iAObj, "ScrCloseChannel", new Long( variantChannelId.toString( ) ) );
+                Dispatch.call( dispatchA2iAObj, "ScrCloseChannel", new Long( variantChannelId.toString( ) ) );
             }
 
         }
 
         return mapOcrServiceResults;
+
     }
 
     /**
@@ -402,7 +444,7 @@ public class OcrService
                         : OcrConstants.EXTENSION_FILE_JPEG;
                 try
                 {
-                    result.setContent(transformPdfToImage( bytefileContent, strImageFormat ));
+                    result.setContent(transformPdfToImage( bytefileContent, strImageFormat, false ));
                 } catch ( OcrException | IOException e )
                 {
                     AppLogService.error( e.getMessage( ) );
@@ -432,34 +474,40 @@ public class OcrService
      *            pdf byte content
      * @param strImageFormat
      *            image format
+     * @param bOptimalImage
+     *            true to generate high quality image
      * @return image byte content
      * @throws OcrException
      *             the OcrException
      * @throws IOException
      *             the IOException
      */
-    private byte[] transformPdfToImage( byte[] pdfByteContent, String strImageFormat ) throws OcrException, IOException
+    private byte[] transformPdfToImage( byte[] pdfByteContent, String strImageFormat, boolean bOptimalImage ) throws OcrException, IOException
     {
 
         AppLogService.info( "transformPdfToImage begin" );
 
-        // Options for converting pdf in image
-        int ndpi = AppPropertiesService.getPropertyInt( OcrConstants.PROPERTY_PDF_IMAGE_QUALITY, 150 );
+        // initialize options to generate high quality image
+        int ndpi = 300;
         float fCompressionLevel = 1;
         ImageType imageType = ImageType.RGB;
 
-        String strImageType = AppPropertiesService.getProperty( OcrConstants.PROPERTY_PDF_IMAGE_TYPE, OcrConstants.IMAGE_TYPE_RGB );
-        imageType = OcrConstants.IMAGE_TYPE_BINARY.equalsIgnoreCase( strImageType ) ? ImageType.BINARY : ImageType.RGB;
-
-        if ( OcrConstants.EXTENSION_FILE_JPEG.equalsIgnoreCase( strImageFormat ) )
+        if ( !bOptimalImage )
         {
-            try
+            ndpi = AppPropertiesService.getPropertyInt( OcrConstants.PROPERTY_PDF_IMAGE_QUALITY, 150 );
+            String strImageType = AppPropertiesService.getProperty( OcrConstants.PROPERTY_PDF_IMAGE_TYPE, OcrConstants.IMAGE_TYPE_RGB );
+            imageType = OcrConstants.IMAGE_TYPE_BINARY.equalsIgnoreCase( strImageType ) ? ImageType.BINARY : ImageType.RGB;
+
+            if ( OcrConstants.EXTENSION_FILE_JPEG.equalsIgnoreCase( strImageFormat ) )
             {
-                fCompressionLevel = Float.valueOf( AppPropertiesService.getProperty( OcrConstants.PROPERTY_PDF_IMAGE_COMPRESSION_LEVEL ) );
-                fCompressionLevel = ( ( fCompressionLevel <= 0 ) || ( fCompressionLevel > 1 ) ) ? 1 : fCompressionLevel;
-            } catch ( NumberFormatException e )
-            {
-                AppLogService.error( "Bad value for properties ocra2ia.pdf.image.compression.level.", e );
+                try
+                {
+                    fCompressionLevel = Float.valueOf( AppPropertiesService.getProperty( OcrConstants.PROPERTY_PDF_IMAGE_COMPRESSION_LEVEL ) );
+                    fCompressionLevel = ( ( fCompressionLevel <= 0 ) || ( fCompressionLevel > 1 ) ) ? 1 : fCompressionLevel;
+                } catch ( NumberFormatException e )
+                {
+                    AppLogService.error( "Bad value for properties ocra2ia.pdf.image.compression.level.", e );
+                }
             }
         }
 
