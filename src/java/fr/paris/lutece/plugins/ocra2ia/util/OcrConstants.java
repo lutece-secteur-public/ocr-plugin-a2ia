@@ -62,6 +62,8 @@ public final class OcrConstants
     public static final String PROPERTY_A2IA_TBL_RIB                       = "ocra2ia.tbl.rib";
     public static final String PROPERTY_A2IA_TBL_TAX                       = "ocra2ia.tbl.tax";
     public static final String PROPERTY_A2IA_TBL_IDENTITY                  = "ocra2ia.tbl.identity";
+    public static final String PROPERTY_A2IA_MODE_OCR                      = "ocra2ia.mode.ocr";
+    public static final String PROPERTY_FOLDER_TMP_IMAGE_FILE              = "ocra2ia.folder.tmp.image.file";
     public static final String PROPERTY_RIB_RESULT                         = "ocra2ia.result.rib.result";
     public static final String PROPERTY_RIB_RESULT_CODE_BANQUE             = "ocra2ia.result.rib.codebanque";
     public static final String PROPERTY_RIB_RESULT_CODE_GUICHET            = "ocra2ia.result.rib.codeguichet";
@@ -108,6 +110,8 @@ public final class OcrConstants
     public static final String EXTENSION_FILE_PDF                          = "Pdf";
     public static final String IMAGE_TYPE_RGB                              = "rgb";
     public static final String IMAGE_TYPE_BINARY                           = "binary";
+    public static final String OCR_MODE_FILE                               = "File";
+    public static final String OCR_MODE_MEMORY                             = "Memory";
 
     // constants rib
     public static final String OUTPUT_ZONE_RIB                             = "documentTypeInfo.CaseSpecific.specificOutput.subTypeInfo.CaseRIB.RIB.result.reco";
