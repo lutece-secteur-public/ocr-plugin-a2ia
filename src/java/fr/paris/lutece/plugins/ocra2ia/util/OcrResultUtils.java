@@ -80,13 +80,17 @@ public final class OcrResultUtils
         if ( strDocumentType.equalsIgnoreCase( AppPropertiesService.getProperty( OcrConstants.PROPERTY_A2IA_DOCUMENT_RIB ) ) )
         {
             return getRIBResult( dispatchA2iaObject, variantResultOcrId );
-        } else if ( strDocumentType.equalsIgnoreCase( AppPropertiesService.getProperty( OcrConstants.PROPERTY_A2IA_DOCUMENT_TAX ) ) )
-        {
-            return getTaxAssessmentResult( dispatchA2iaObject, variantResultOcrId );
-        } else if ( strDocumentType.equalsIgnoreCase( AppPropertiesService.getProperty( OcrConstants.PROPERTY_A2IA_DOCUMENT_IDENTITY ) ) )
-        {
-            return getIdentityResult( dispatchA2iaObject, variantResultOcrId );
         }
+        else
+            if ( strDocumentType.equalsIgnoreCase( AppPropertiesService.getProperty( OcrConstants.PROPERTY_A2IA_DOCUMENT_TAX ) ) )
+            {
+                return getTaxAssessmentResult( dispatchA2iaObject, variantResultOcrId );
+            }
+            else
+                if ( strDocumentType.equalsIgnoreCase( AppPropertiesService.getProperty( OcrConstants.PROPERTY_A2IA_DOCUMENT_IDENTITY ) ) )
+                {
+                    return getIdentityResult( dispatchA2iaObject, variantResultOcrId );
+                }
 
         return null;
     }
@@ -106,22 +110,29 @@ public final class OcrResultUtils
         Map<String, String> mapOcrRibResult = new HashMap<>( );
 
         List<A2iaOutput> listA2iaOutputRib = new ArrayList<>( );
-        listA2iaOutputRib.add( new A2iaOutput( AppPropertiesService.getProperty( OcrConstants.PROPERTY_RIB_RESULT ), OcrConstants.OUTPUT_ZONE_RIB, Variant.VariantString ) );
-        listA2iaOutputRib.add( new A2iaOutput( AppPropertiesService.getProperty( OcrConstants.PROPERTY_RIB_RESULT_CODE_BANQUE ), OcrConstants.OUTPUT_ZONE_RIB_CODE_BANQUE, Variant.VariantString ) );
-        listA2iaOutputRib.add( new A2iaOutput( AppPropertiesService.getProperty( OcrConstants.PROPERTY_RIB_RESULT_CODE_GUICHET ), OcrConstants.OUTPUT_ZONE_RIB_CODE_GUICHET, Variant.VariantString ) );
-        listA2iaOutputRib.add( new A2iaOutput( AppPropertiesService.getProperty( OcrConstants.PROPERTY_RIB_RESULT_N_COMPTE ), OcrConstants.OUTPUT_ZONE_RIB_N_COMPTE, Variant.VariantString ) );
-        listA2iaOutputRib.add( new A2iaOutput( AppPropertiesService.getProperty( OcrConstants.PROPERTY_RIB_RESULT_CLE ), OcrConstants.OUTPUT_ZONE_RIB_CLE, Variant.VariantString ) );
-        listA2iaOutputRib.add( new A2iaOutput( AppPropertiesService.getProperty( OcrConstants.PROPERTY_RIB_RESULT_IBAN ), OcrConstants.OUTPUT_ZONE_RIB_IBAN, Variant.VariantString ) );
-        listA2iaOutputRib.add( new A2iaOutput( AppPropertiesService.getProperty( OcrConstants.PROPERTY_RIB_RESULT_BIC ), OcrConstants.OUTPUT_ZONE_RIB_BIC, Variant.VariantString ) );
+        listA2iaOutputRib.add( new A2iaOutput( AppPropertiesService.getProperty( OcrConstants.PROPERTY_RIB_RESULT ), OcrConstants.OUTPUT_ZONE_RIB,
+                Variant.VariantString ) );
+        listA2iaOutputRib.add( new A2iaOutput( AppPropertiesService.getProperty( OcrConstants.PROPERTY_RIB_RESULT_CODE_BANQUE ),
+                OcrConstants.OUTPUT_ZONE_RIB_CODE_BANQUE, Variant.VariantString ) );
+        listA2iaOutputRib.add( new A2iaOutput( AppPropertiesService.getProperty( OcrConstants.PROPERTY_RIB_RESULT_CODE_GUICHET ),
+                OcrConstants.OUTPUT_ZONE_RIB_CODE_GUICHET, Variant.VariantString ) );
+        listA2iaOutputRib.add( new A2iaOutput( AppPropertiesService.getProperty( OcrConstants.PROPERTY_RIB_RESULT_N_COMPTE ),
+                OcrConstants.OUTPUT_ZONE_RIB_N_COMPTE, Variant.VariantString ) );
+        listA2iaOutputRib.add( new A2iaOutput( AppPropertiesService.getProperty( OcrConstants.PROPERTY_RIB_RESULT_CLE ), OcrConstants.OUTPUT_ZONE_RIB_CLE,
+                Variant.VariantString ) );
+        listA2iaOutputRib.add( new A2iaOutput( AppPropertiesService.getProperty( OcrConstants.PROPERTY_RIB_RESULT_IBAN ), OcrConstants.OUTPUT_ZONE_RIB_IBAN,
+                Variant.VariantString ) );
+        listA2iaOutputRib.add( new A2iaOutput( AppPropertiesService.getProperty( OcrConstants.PROPERTY_RIB_RESULT_BIC ), OcrConstants.OUTPUT_ZONE_RIB_BIC,
+                Variant.VariantString ) );
 
-        listA2iaOutputRib.forEach( a2iaOutput ->
-        {
+        listA2iaOutputRib.forEach( a2iaOutput -> {
             getA2iaOutputResult( a2iaOutput, dispatchA2iaObject, variantResultOcrId, mapOcrRibResult );
 
         } );
 
         // get Address info
-        A2iaOutput a2iaOutputAddress = new A2iaOutput( AppPropertiesService.getProperty( OcrConstants.PROPERTY_RIB_RESULT_ADDRESS ), OcrConstants.OUTPUT_ZONE_RIB_ADDRESS, Variant.VariantInt );
+        A2iaOutput a2iaOutputAddress = new A2iaOutput( AppPropertiesService.getProperty( OcrConstants.PROPERTY_RIB_RESULT_ADDRESS ),
+                OcrConstants.OUTPUT_ZONE_RIB_ADDRESS, Variant.VariantInt );
         getA2iaOutputResultMultiLines( a2iaOutputAddress, dispatchA2iaObject, variantResultOcrId, mapOcrRibResult );
 
         return mapOcrRibResult;
@@ -142,18 +153,18 @@ public final class OcrResultUtils
         Map<String, String> mapOcrTaxResult = new HashMap<>( );
 
         // get Address info
-        A2iaOutput a2iaOutputAddress = new A2iaOutput( AppPropertiesService.getProperty( OcrConstants.PROPERTY_TAX_ASSESSMENT_RESULT_ADDRESS ), OcrConstants.OUTPUT_ZONE_TAX_ASSESSMENT_ADDRESS,
-                Variant.VariantInt );
+        A2iaOutput a2iaOutputAddress = new A2iaOutput( AppPropertiesService.getProperty( OcrConstants.PROPERTY_TAX_ASSESSMENT_RESULT_ADDRESS ),
+                OcrConstants.OUTPUT_ZONE_TAX_ASSESSMENT_ADDRESS, Variant.VariantInt );
         getA2iaOutputResultMultiLines( a2iaOutputAddress, dispatchA2iaObject, variantResultOcrId, mapOcrTaxResult );
 
         // get established date
-        A2iaOutput a2iaOutputDate = new A2iaOutput( AppPropertiesService.getProperty( OcrConstants.PROPERTY_TAX_ASSESSMENT_RESULT_DATE ), OcrConstants.OUTPUT_ZONE_TAX_ASSESSMENT_ESTABLISHED_DATE,
-                Variant.VariantString );
+        A2iaOutput a2iaOutputDate = new A2iaOutput( AppPropertiesService.getProperty( OcrConstants.PROPERTY_TAX_ASSESSMENT_RESULT_DATE ),
+                OcrConstants.OUTPUT_ZONE_TAX_ASSESSMENT_ESTABLISHED_DATE, Variant.VariantString );
         getA2iaOutputResultDate( a2iaOutputDate, dispatchA2iaObject, variantResultOcrId, mapOcrTaxResult );
 
         // get Tax Amount
-        A2iaOutput a2iaOutputTaxAmonut = new A2iaOutput( AppPropertiesService.getProperty( OcrConstants.PROPERTY_TAX_ASSESSMENT_RESULT_TAX_AMOUNT ), OcrConstants.OUTPUT_ZONE_TAX_ASSESSMENT_TAX_AMOUNT,
-                Variant.VariantFloat );
+        A2iaOutput a2iaOutputTaxAmonut = new A2iaOutput( AppPropertiesService.getProperty( OcrConstants.PROPERTY_TAX_ASSESSMENT_RESULT_TAX_AMOUNT ),
+                OcrConstants.OUTPUT_ZONE_TAX_ASSESSMENT_TAX_AMOUNT, Variant.VariantFloat );
         getA2iaOutputResult( a2iaOutputTaxAmonut, dispatchA2iaObject, variantResultOcrId, mapOcrTaxResult );
 
         return mapOcrTaxResult;
@@ -174,34 +185,34 @@ public final class OcrResultUtils
         Map<String, String> mapOcrIdentityResult = new HashMap<>( );
 
         List<A2iaOutput> listA2iaOutputIdentity = new ArrayList<>( );
-        listA2iaOutputIdentity
-        .add( new A2iaOutput( AppPropertiesService.getProperty( OcrConstants.PROPERTY_IDENTITY_FIRST_NAME ), OcrConstants.OUTPUT_ZONE_IDENTITY_FIRST_NAME, Variant.VariantString ) );
-        listA2iaOutputIdentity
-        .add( new A2iaOutput( AppPropertiesService.getProperty( OcrConstants.PROPERTY_IDENTITY_LAST_NAME ), OcrConstants.OUTPUT_ZONE_IDENTITY_LAST_NAME, Variant.VariantString ) );
-        listA2iaOutputIdentity
-        .add( new A2iaOutput( AppPropertiesService.getProperty( OcrConstants.PROPERTY_IDENTITY_BIRTH_PLACE ), OcrConstants.OUTPUT_ZONE_IDENTITY_BIRTH_PLACE, Variant.VariantString ) );
-        listA2iaOutputIdentity.add( new A2iaOutput( AppPropertiesService.getProperty( OcrConstants.PROPERTY_IDENTITY_GENDER ), OcrConstants.OUTPUT_ZONE_IDENTITY_GENDER, Variant.VariantString ) );
-        listA2iaOutputIdentity
-        .add( new A2iaOutput( AppPropertiesService.getProperty( OcrConstants.PROPERTY_IDENTITY_NATIONALITY ), OcrConstants.OUTPUT_ZONE_IDENTITY_NATIONALITY, Variant.VariantString ) );
-        listA2iaOutputIdentity.add( new A2iaOutput( AppPropertiesService.getProperty( OcrConstants.PROPERTY_IDENTITY_ID_NUMBER ), OcrConstants.OUTPUT_ZONE_IDENTITY_ID_NUMBER, Variant.VariantInt ) );
+        listA2iaOutputIdentity.add( new A2iaOutput( AppPropertiesService.getProperty( OcrConstants.PROPERTY_IDENTITY_FIRST_NAME ),
+                OcrConstants.OUTPUT_ZONE_IDENTITY_FIRST_NAME, Variant.VariantString ) );
+        listA2iaOutputIdentity.add( new A2iaOutput( AppPropertiesService.getProperty( OcrConstants.PROPERTY_IDENTITY_LAST_NAME ),
+                OcrConstants.OUTPUT_ZONE_IDENTITY_LAST_NAME, Variant.VariantString ) );
+        listA2iaOutputIdentity.add( new A2iaOutput( AppPropertiesService.getProperty( OcrConstants.PROPERTY_IDENTITY_BIRTH_PLACE ),
+                OcrConstants.OUTPUT_ZONE_IDENTITY_BIRTH_PLACE, Variant.VariantString ) );
+        listA2iaOutputIdentity.add( new A2iaOutput( AppPropertiesService.getProperty( OcrConstants.PROPERTY_IDENTITY_GENDER ),
+                OcrConstants.OUTPUT_ZONE_IDENTITY_GENDER, Variant.VariantString ) );
+        listA2iaOutputIdentity.add( new A2iaOutput( AppPropertiesService.getProperty( OcrConstants.PROPERTY_IDENTITY_NATIONALITY ),
+                OcrConstants.OUTPUT_ZONE_IDENTITY_NATIONALITY, Variant.VariantString ) );
+        listA2iaOutputIdentity.add( new A2iaOutput( AppPropertiesService.getProperty( OcrConstants.PROPERTY_IDENTITY_ID_NUMBER ),
+                OcrConstants.OUTPUT_ZONE_IDENTITY_ID_NUMBER, Variant.VariantInt ) );
 
-        listA2iaOutputIdentity.forEach( a2iaOutput ->
-        {
+        listA2iaOutputIdentity.forEach( a2iaOutput -> {
             getA2iaOutputResult( a2iaOutput, dispatchA2iaObject, variantResultOcrId, mapOcrIdentityResult );
 
         } );
 
         listA2iaOutputIdentity.clear( );
 
-        listA2iaOutputIdentity
-        .add( new A2iaOutput( AppPropertiesService.getProperty( OcrConstants.PROPERTY_IDENTITY_BIRTH_DATE ), OcrConstants.OUTPUT_ZONE_IDENTITY_BIRTH_DATE, Variant.VariantString ) );
-        listA2iaOutputIdentity
-        .add( new A2iaOutput( AppPropertiesService.getProperty( OcrConstants.PROPERTY_IDENTITY_EXPIRATION_DATE ), OcrConstants.OUTPUT_ZONE_IDENTITY_EXPIRATION_DATE, Variant.VariantString ) );
-        listA2iaOutputIdentity
-        .add( new A2iaOutput( AppPropertiesService.getProperty( OcrConstants.PROPERTY_IDENTITY_ISSUE_DATE ), OcrConstants.OUTPUT_ZONE_IDENTITY_ISSUE_DATE, Variant.VariantString ) );
+        listA2iaOutputIdentity.add( new A2iaOutput( AppPropertiesService.getProperty( OcrConstants.PROPERTY_IDENTITY_BIRTH_DATE ),
+                OcrConstants.OUTPUT_ZONE_IDENTITY_BIRTH_DATE, Variant.VariantString ) );
+        listA2iaOutputIdentity.add( new A2iaOutput( AppPropertiesService.getProperty( OcrConstants.PROPERTY_IDENTITY_EXPIRATION_DATE ),
+                OcrConstants.OUTPUT_ZONE_IDENTITY_EXPIRATION_DATE, Variant.VariantString ) );
+        listA2iaOutputIdentity.add( new A2iaOutput( AppPropertiesService.getProperty( OcrConstants.PROPERTY_IDENTITY_ISSUE_DATE ),
+                OcrConstants.OUTPUT_ZONE_IDENTITY_ISSUE_DATE, Variant.VariantString ) );
 
-        listA2iaOutputIdentity.forEach( a2iaOutputDate ->
-        {
+        listA2iaOutputIdentity.forEach( a2iaOutputDate -> {
             getA2iaOutputResultDate( a2iaOutputDate, dispatchA2iaObject, variantResultOcrId, mapOcrIdentityResult );
         } );
 
@@ -222,7 +233,8 @@ public final class OcrResultUtils
      */
     private static void getA2iaOutputResult( A2iaOutput a2iaOutput, Dispatch dispatchA2iaObject, Variant variantResultOcrId, Map<String, String> mapResult )
     {
-        Variant variantResult = Dispatch.call( dispatchA2iaObject, OcrConstants.GET_PROPERTY_A2IA, variantResultOcrId.getInt( ), a2iaOutput.getOutputZoneName( ) );
+        Variant variantResult = Dispatch
+                .call( dispatchA2iaObject, OcrConstants.GET_PROPERTY_A2IA, variantResultOcrId.getInt( ), a2iaOutput.getOutputZoneName( ) );
         if ( variantResult != null )
         {
             mapResult.put( a2iaOutput.getKey( ), variantResult.changeType( a2iaOutput.getOutputZoneType( ) ).toString( ) );
@@ -241,9 +253,11 @@ public final class OcrResultUtils
      * @param mapResult
      *            map result of OCR
      */
-    private static void getA2iaOutputResultMultiLines( A2iaOutput a2iaOutputMultiLines, Dispatch dispatchA2iaObject, Variant variantResultOcrId, Map<String, String> mapResult )
+    private static void getA2iaOutputResultMultiLines( A2iaOutput a2iaOutputMultiLines, Dispatch dispatchA2iaObject, Variant variantResultOcrId,
+            Map<String, String> mapResult )
     {
-        Variant variantLines = Dispatch.call( dispatchA2iaObject, OcrConstants.GET_PROPERTY_A2IA, variantResultOcrId.getInt( ), a2iaOutputMultiLines.getOutputZoneName( ) );
+        Variant variantLines = Dispatch.call( dispatchA2iaObject, OcrConstants.GET_PROPERTY_A2IA, variantResultOcrId.getInt( ),
+                a2iaOutputMultiLines.getOutputZoneName( ) );
         if ( ( ( variantLines != null ) && !variantLines.isNull( ) ) && ( variantLines.getInt( ) > 0 ) )
         {
             StringBuilder sbAdresse = new StringBuilder( );
@@ -259,16 +273,22 @@ public final class OcrResultUtils
                     if ( OcrConstants.OUTPUT_ZONE_ADDRESS_NAME.equalsIgnoreCase( variantType.toString( ) ) )
                     {
                         mapResult.put( AppPropertiesService.getProperty( OcrConstants.PROPERTY_ADDRESS_NAME ), variantLine.toString( ) );
-                    } else if ( OcrConstants.OUTPUT_ZONE_ADDRESS_DESTINATION.equalsIgnoreCase( variantType.toString( ) ) )
-                    {
-                        mapResult.put(AppPropertiesService.getProperty( OcrConstants.PROPERTY_ADDRESS_DESTINATION ), variantLine.toString( ) );
-                    } else if ( OcrConstants.OUTPUT_ZONE_ADDRESS_PHONE_NUMBER.equalsIgnoreCase( variantType.toString( ) ) )
-                    {
-                        mapResult.put(AppPropertiesService.getProperty( OcrConstants.PROPERTY_ADDRESS_PHONE ), variantLine.toString( ) );
-                    } else if ( OcrConstants.OUTPUT_ZONE_ADDRESS_CITY_ZIP.equalsIgnoreCase( variantType.toString( ) ) )
-                    {
-                        mapResult.put( AppPropertiesService.getProperty( OcrConstants.PROPERTY_ADDRESS_CITYZIP ), variantLine.toString( ) );
                     }
+                    else
+                        if ( OcrConstants.OUTPUT_ZONE_ADDRESS_DESTINATION.equalsIgnoreCase( variantType.toString( ) ) )
+                        {
+                            mapResult.put( AppPropertiesService.getProperty( OcrConstants.PROPERTY_ADDRESS_DESTINATION ), variantLine.toString( ) );
+                        }
+                        else
+                            if ( OcrConstants.OUTPUT_ZONE_ADDRESS_PHONE_NUMBER.equalsIgnoreCase( variantType.toString( ) ) )
+                            {
+                                mapResult.put( AppPropertiesService.getProperty( OcrConstants.PROPERTY_ADDRESS_PHONE ), variantLine.toString( ) );
+                            }
+                            else
+                                if ( OcrConstants.OUTPUT_ZONE_ADDRESS_CITY_ZIP.equalsIgnoreCase( variantType.toString( ) ) )
+                                {
+                                    mapResult.put( AppPropertiesService.getProperty( OcrConstants.PROPERTY_ADDRESS_CITYZIP ), variantLine.toString( ) );
+                                }
                 }
 
             }
@@ -288,16 +308,20 @@ public final class OcrResultUtils
      * @param mapResult
      *            map result of OCR
      */
-    private static void getA2iaOutputResultDate( A2iaOutput a2iaOutputDate, Dispatch dispatchA2iaObject, Variant variantResultOcrId, Map<String, String> mapResult )
+    private static void getA2iaOutputResultDate( A2iaOutput a2iaOutputDate, Dispatch dispatchA2iaObject, Variant variantResultOcrId,
+            Map<String, String> mapResult )
     {
         String strDayOfDate = ".day";
         String strMonthOfDate = ".month";
         String strYearOfDate = ".year";
         String strDateSeparator = "/";
 
-        Variant variantDay = Dispatch.call( dispatchA2iaObject, OcrConstants.GET_PROPERTY_A2IA, variantResultOcrId.getInt( ), a2iaOutputDate.getOutputZoneName( ) + strDayOfDate );
-        Variant variantMonth = Dispatch.call( dispatchA2iaObject, OcrConstants.GET_PROPERTY_A2IA, variantResultOcrId.getInt( ), a2iaOutputDate.getOutputZoneName( ) + strMonthOfDate );
-        Variant variantYear = Dispatch.call( dispatchA2iaObject, OcrConstants.GET_PROPERTY_A2IA, variantResultOcrId.getInt( ), a2iaOutputDate.getOutputZoneName( ) + strYearOfDate );
+        Variant variantDay = Dispatch.call( dispatchA2iaObject, OcrConstants.GET_PROPERTY_A2IA, variantResultOcrId.getInt( ),
+                a2iaOutputDate.getOutputZoneName( ) + strDayOfDate );
+        Variant variantMonth = Dispatch.call( dispatchA2iaObject, OcrConstants.GET_PROPERTY_A2IA, variantResultOcrId.getInt( ),
+                a2iaOutputDate.getOutputZoneName( ) + strMonthOfDate );
+        Variant variantYear = Dispatch.call( dispatchA2iaObject, OcrConstants.GET_PROPERTY_A2IA, variantResultOcrId.getInt( ),
+                a2iaOutputDate.getOutputZoneName( ) + strYearOfDate );
 
         if ( ( variantDay != null ) && ( variantMonth != null ) && ( variantYear != null ) )
         {

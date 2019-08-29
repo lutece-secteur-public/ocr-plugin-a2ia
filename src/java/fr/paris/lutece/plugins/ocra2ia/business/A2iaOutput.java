@@ -53,7 +53,7 @@ public class A2iaOutput
     /**
      * A2ia output zone type (String, Integer, ...).
      */
-    private short  _shOutputZoneType;
+    private short _shOutputZoneType;
 
     /**
      * Constructor
