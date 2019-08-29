@@ -10,7 +10,7 @@
 
 	<groupId>fr.paris.lutece.plugins</groupId>
 	<artifactId>plugin-ocra2ia</artifactId>
-	<version>1.0.0</version>
+	<version>1.0.1-SNAPSHOT</version>
 	<packaging>lutece-plugin</packaging>
 	<name>Lutece a2ia ocr plugin</name>
 
@@ -69,7 +69,7 @@
 		<connection>scm:git:https://github.com/lutece-secteur-public/ocr-plugin-a2ia.git</connection>
 		<developerConnection>scm:git:https://github.com/lutece-secteur-public/ocr-plugin-a2ia.git</developerConnection>
 		<url>https://github.com/lutece-secteur-public/ocr-plugin-a2ia.git</url>
-		<tag>ocr-plugin-a2ia-1.0.0</tag>
+		<tag>HEAD</tag>
 	</scm>
 
 
